@@ -1,1 +1,1 @@
-{"code":"function(){return !!document.querySelector(\"section#page-contents\")}","resultat":true}
+{"code":"function(){document.querySelector(\"a[href=\\\"signup\\\"]\").click();return true}","resultat":true}

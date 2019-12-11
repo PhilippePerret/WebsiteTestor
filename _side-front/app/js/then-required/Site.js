@@ -42,6 +42,11 @@ class Site {
   constructor(url, params){
     this.url    = url
     this.params = params
+
+    this.hasCss = this.hasCss.bind(this)
+    this.click  = this.click.bind(this)
+    this.afterClick = this.afterClick.bind(this)
+    this.afterSearchInPage = this.afterSearchInPage.bind(this)
   }
 
   /** ---------------------------------------------------------------------
@@ -62,13 +67,13 @@ class Site {
     *
   *** --------------------------------------------------------------------- */
   click(selector, args){
-    if (this.searchInPage(selector, args)){
-      this.container.querySelector(selector).click()
-      return true
-    } else {
-      App.error(`# Impossible de trouver l'élément à cliquer ${selector}…`)
-      return false
-    }
+    selector = selector.replace(/\"/g,'\\"')
+    return this.exec(
+        `function(){document.querySelector("${selector}").click();return true}`
+    ).then(this.afterClick)
+  }
+  afterClick(res){
+    console.log("resultat du click :", res)
   }
 
   fill(form, values){
@@ -84,17 +89,21 @@ class Site {
     Exécution d'un code JS sur le site
     cf. le manuel du développeur pour le détail, car c'est un peu complexe
   **/
-  exec(code, callback){
-    this.execResult.callback = callback // pour le retour
-    // Finalisation du code pour envoi
-    var now = Number(new Date())
-    code = `var res${now};try{res${now}={code:'${code}',resultat:${code}()}}catch(err){res${now}={error:err.message,backtrace:err.backtrace}};console.log(res${now});const fs${now}=require('fs');fs${now}.writeFileSync("${this.relPathExecuteJSResult}",JSON.stringify(res${now}),'utf8')`
-    console.log("Code transmis : ", code)
-    ipcRenderer.send('execute-js', {code:code})
+  exec(code){
+    return new Promise((ok,ko)=>{
+      this.execResult.ok = ok
+      // Finalisation du code pour envoi
+      var now = Number(new Date())
+      var f_code = code.replace(/\"/g,'\\"')
+      console.log("f_code = ", f_code)
+      code = `var res${now};try{res${now}={code:'${f_code}',resultat:${code}()}}catch(err){res${now}={error:err.message,backtrace:err.backtrace}};console.log(res${now});const fs${now}=require('fs');fs${now}.writeFileSync("${this.relPathExecuteJSResult}",JSON.stringify(res${now}),'utf8');`
+      console.log("Code transmis : ", code)
+      ipcRenderer.send('execute-js', {code:code})
+    })
   }
   execResult(result) {
     console.log("-> execResult", result)
-    this.execResult.callback.call(this, result)
+    this.execResult.ok.call(this, result)
   }
 
   /**
@@ -107,8 +116,10 @@ class Site {
     console.log("Résultat après la recherche dans la page : ", result)
   }
 
-  searchInPage(selector, args){
-    this.exec(`function(){return !!document.querySelector("${selector}")}`, this.afterSearchInPage)
+  async searchInPage(selector, args){
+    selector = selector.replace(/\"/g,'\\"')
+    return this.exec(`function(){return !!document.querySelector("${selector}")}`)
+    .then(this.afterSearchInPage)
     return
 
     if (!this.container.querySelector(selector)){return false}

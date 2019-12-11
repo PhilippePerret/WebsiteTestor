@@ -48,7 +48,7 @@ const Flash = {
 
 }
 Object.defineProperties(Flash,{
-  domObj:{get(){return document.querySelector('#footer #message')}}
+  domObj:{get(){return document.querySelector('#flash')}}
 })
 
 const F = Flash
