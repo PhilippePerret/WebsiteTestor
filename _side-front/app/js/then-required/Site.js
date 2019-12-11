@@ -50,10 +50,10 @@ class Site {
     *
   *** --------------------------------------------------------------------- */
   hasCss(selector, args){
-    return (new Expectation(this.findInPage(selector, args), args)).result
+    return (new Expectation(this.searchInPage(selector, args), args)).result
   }
   notHasCss(selector,args){
-    return (new Expectation(!this.findInPage(selector, args), args)).result
+    return (new Expectation(!this.searchInPage(selector, args), args)).result
   }
 
   /** ---------------------------------------------------------------------
@@ -62,7 +62,7 @@ class Site {
     *
   *** --------------------------------------------------------------------- */
   click(selector, args){
-    if (this.findInPage(selector, args)){
+    if (this.searchInPage(selector, args)){
       this.container.querySelector(selector).click()
       return true
     } else {
@@ -80,20 +80,35 @@ class Site {
     *
   *** --------------------------------------------------------------------- */
 
-
-  exec(code, options){
-    ipcRenderer.send('executeJS', {code:code, options:options})
+  /**
+    Exécution d'un code JS sur le site
+    cf. le manuel du développeur pour le détail, car c'est un peu complexe
+  **/
+  exec(code, callback){
+    this.execResult.callback = callback // pour le retour
+    // Finalisation du code pour envoi
+    var now = Number(new Date())
+    code = `var res${now};try{res${now}={code:'${code}',resultat:${code}()}}catch(err){res${now}={error:err.message,backtrace:err.backtrace}};console.log(res${now});const fs${now}=require('fs');fs${now}.writeFileSync("${this.relPathExecuteJSResult}",JSON.stringify(res${now}),'utf8')`
+    console.log("Code transmis : ", code)
+    ipcRenderer.send('execute-js', {code:code})
   }
-
   execResult(result) {
     console.log("-> execResult", result)
+    this.execResult.callback.call(this, result)
   }
 
+  /**
+    Le path du fichier dans lequel sera copié le résultat de l'exécution du
+    code JS sur le site.
+  **/
+  get relPathExecuteJSResult(){return './.result-from-execute-js.json'}
 
-  findInPage(selector, args){
+  afterSearchInPage(result){
+    console.log("Résultat après la recherche dans la page : ", result)
+  }
 
-    this.exec('console.clear();console.log("Pour voir un message")')
-    this.exec(`function qSel(selector){return !!document.querySelector(selector)};var res = qSel("${selector}");console.log("Res : ", res); const fs = require('fs');fs.writeFileSync("./test-res-from-executeJS.json", JSON.stringify({result:res}),'utf8');`)
+  searchInPage(selector, args){
+    this.exec(`function(){return !!document.querySelector("${selector}")}`, this.afterSearchInPage)
     return
 
     if (!this.container.querySelector(selector)){return false}
@@ -121,26 +136,6 @@ class Site {
   **/
   load(url){
     ipcRenderer.send('load-url', {url:url||this.url, params:this.params})
-    // return new Promise((ok,ko)=>{
-    //   exec(`curl --no-verbose "${url||this.url}"`, (err, stdout, stderr) => {
-    //     this.container.innerHTML = stdout
-    //     this.prepare()
-    //     ok()
-    //   })
-    // })
-  }
-
-  /**
-    Prépare la page pour être testable
-    Pour le moment, ce sont tous les <a> et les boutons qu'on transforme
-  **/
-  prepare(){
-    this.container.querySelectorAll('a').forEach(link => {
-      var href = link.href
-      link.href = 'javascript:alert("Pour voir")'
-      console.log("Traitement du lien '%s'", href)
-      link.setAttribute('onclick', this.onClick.bind(this, href))
-    })
   }
 
   onClick(ev, href){
@@ -158,7 +153,7 @@ ipcRenderer.on('res-from-executeJS', function(event, err){
   if ( err ) {
     App.onError(err)
   } else {
-    var sol = JSON.parse(fs.readFileSync('./test-res-from-executeJS.json','utf8'))
+    var sol = JSON.parse(fs.readFileSync(site.relPathExecuteJSResult,'utf8'))
     // console.log("Retour de executeJavaScript sur le site  = ", sol)
     site.execResult(sol)
   }

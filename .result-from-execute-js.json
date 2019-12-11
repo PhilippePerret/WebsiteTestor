@@ -1,0 +1,1 @@
+{"code":"function(){return !!document.querySelector(\"section#page-contents\")}","resultat":true}

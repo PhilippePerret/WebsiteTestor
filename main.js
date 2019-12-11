@@ -177,7 +177,7 @@ ipcMain
   .on('load-url', (ev, {url, params}) => {
     siteWindow.loadURL(url)
   })
-  .on('executeJS', (event, {code, options}) => {
+  .on('execute-js', (event, {code, options}) => {
     siteWindow.webContents.executeJavaScript(code)
       .then( function(res){
         event.sender.send('res-from-executeJS', null)
