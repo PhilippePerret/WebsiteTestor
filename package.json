@@ -1,0 +1,36 @@
+{
+  "name": "_NODEJS_FRAMEWORK_",
+  "productName": "_NODEJS_FRAMEWORK_",
+  "version": "0.0.1",
+  "description": "_APPDESCRIPTION_",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron .",
+    "start-update": "UPDATE_MAIN_HTML=true electron .",
+    "update-db": "FORCE_REBUILD_DB=true electron .",
+    "build": "electron-packager . --platform=darwin --icon=icons/app --asar --out=built --overwrite",
+    "build-sans-icone": "electron-packager . --platform=darwin --asar --out=built --overwrite",
+    "dev": "electron . --debug"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/_YOUR_GIT_ACCOUNT_/_YOUR_REPOSITORY_.git"
+  },
+  "keywords": [],
+  "author": "_LASTNAME_, FIRSTNAME_",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/_YOUR_GIT_ACCOUNT_/_YOUR_REPOSITORY_/issues"
+  },
+  "homepage": "https://github.com/_YOUR_GIT_ACCOUNT_/_YOUR_REPOSITORY_#readme",
+  "devDependencies": {
+    "electron": "^6.0.0",
+    "electron-packager": "^14.0.4"
+  },
+  "dependencies": {
+    "exec": "^0.2.1",
+    "glob": "^7.1.4",
+    "mysql2": "^1.6.5"
+  }
+}
