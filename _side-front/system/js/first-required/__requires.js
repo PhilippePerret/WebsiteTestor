@@ -4,6 +4,7 @@ const path      = require('path')
     , fs        = require('fs')
     , {remote}  = require('electron')
 
+const ipcRenderer = require('electron').ipcRenderer;
 
 window.onerror = function(err, url, line){
   alert("Une erreur est survenue : " + err + "\n\nConsulter la console (ALT+CMD+i) pour le détail.")

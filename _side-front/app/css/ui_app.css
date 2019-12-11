@@ -1,7 +1,7 @@
 /*
   Partie contenant le site
  */
-iframe#site {
+#site {
   border:1px dashed green;
   position:fixed;
   top:0;

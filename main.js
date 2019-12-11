@@ -8,12 +8,14 @@
 const path = require('path')
 const glob = require('glob')
 const {app, BrowserWindow} = require('electron')
+const ipcMain = require('electron').ipcMain;
 
 // Mode débug ?
 const debug = /--debug/.test(process.argv[2])
 
-// La fenêtre principale
+// La fenêtre principale et la fenêtre du site
 let mainWindow = null
+let siteWindow = null
 
 // Fonction appelée en bas de ce module, pour initialiser l'application
 function initialize () {
@@ -33,13 +35,55 @@ function initialize () {
     console.log("Fichier main.html actualisé")
   }
 
-
-  // Création de la fenêtre
-  function createWindow () {
+  // Création de la fenêtre qui va contenir le site
+  function createSiteWindow(){
     const windowOptions = {
-        width: 1520             // TODO Customisable
+        width: 1000             // TODO Customisable
       , minWidth: 680           // TODO Customisable
-      , height: 840             // TODO Customisable
+      , height: 700             // TODO Customisable
+      , left: 0
+      , top: 0
+      , icon: __dirname+'/Imagerie/Icone/Icone-1024x1024.icns'
+      , title: app.name
+      , webPreferences: {
+          nodeIntegration: true
+        }
+    }
+
+    // // Si on est sur Linux
+    // if (process.platform === 'linux') {
+    //   windowOptions.icon = path.join(__dirname, '/assets/app-icon/png/512.png')
+    // }
+
+    // On ouvre la fenêtre principale…
+    siteWindow = new BrowserWindow(windowOptions)
+    // Et on charge dedans le fichier principal
+
+    // Chargement d'un fichier html
+    // On ne charge rien dedans pour le moment
+    // siteWindow.loadURL(path.join('file://', __dirname, '/_side-front/xmain.html'))
+
+    // Launch fullscreen with DevTools open, usage: npm run debug
+    if (debug) {
+      siteWindow.webContents.openDevTools()
+      siteWindow.maximize()
+      require('devtron').install()
+    }
+
+    // Quand on ferme la fenêtre, on détruit l'instance
+    siteWindow.on('closed', () => {
+      siteWindow = null
+    })
+  }
+
+  // Création de la fenêtre principale
+  function createMainWindow () {
+    const windowOptions = {
+        width: 1000             // TODO Customisable
+      , minWidth: 680
+      , height: 840
+      , left: 400
+      , top:  400
       , icon: __dirname+'/Imagerie/Icone/Icone-1024x1024.icns'
       , title: app.name
       , webPreferences: {
@@ -66,17 +110,6 @@ function initialize () {
       require('devtron').install()
     }
 
-    var dbMethod
-    if (process.env.FORCE_REBUILD_DB/* quand on utilise npm run update-db */) {
-      // On force la reconstruction des tables (si elles sont définies)
-      dbMethod = "MySql2.createTablesIfRequired(true)"
-    } else {
-      // On checke pour voir si les tables existent
-      dbMethod = "MySql2.checkTables()"
-
-    }
-    mainWindow.webContents.executeJavaScript(dbMethod).then(res => console.log(res))
-
     // Quand on ferme la fenêtre, on détruit l'instance
     mainWindow.on('closed', () => {
       mainWindow = null
@@ -87,7 +120,8 @@ function initialize () {
     Quand l'application est prête, on créer la fenêtre
   **/
   app.on('ready', () => {
-    createWindow()
+    createMainWindow()
+    createSiteWindow()
   })
 
   /**
@@ -138,3 +172,17 @@ function loadMainProcessFiles () {
 }
 
 initialize()
+
+ipcMain
+  .on('load-url', (ev, {url, params}) => {
+    siteWindow.loadURL(url)
+  })
+  .on('executeJS', (event, {code, options}) => {
+    siteWindow.webContents.executeJavaScript(code)
+      .then( function(res){
+        event.sender.send('res-from-executeJS', null)
+      })
+      .catch(function(err){
+        event.sender.send('res-from-executeJS', err)
+      })
+  })
