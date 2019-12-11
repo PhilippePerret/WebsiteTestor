@@ -1,0 +1,19 @@
+/*
+  Partie contenant le site
+ */
+iframe#site {
+  border:1px dashed green;
+  position:fixed;
+  top:0;
+  left:0;
+  width:90%;
+  overflow:auto;
+}
+
+/*
+  Partie contenant le feuille de test en édition
+ */
+
+section#test {
+  border:1px dashed red;
+}

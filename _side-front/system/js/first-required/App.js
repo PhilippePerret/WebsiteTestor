@@ -2,7 +2,7 @@ const App = {
   async init(){
     UI.init()
     // Appeler la méthode 'onInit' si elle existe
-    if ( 'function' === typeof this.onInit ) {
+    if ( this.onInit instanceof Function ) {
       this.onInit.call(this)
     }
   }
@@ -15,5 +15,5 @@ Object.defineProperties(App,{
       this._homedirectory = require('os').homedir();
     }return this._homedirectory
   }}
-  
+
 })

@@ -6,15 +6,6 @@ const UI = {
     this.setDimensions()
   }
 
-, setDimensions(){
-    const my = this
-        , hwindow = this.UI_HEIGHT
-        , hheader = UI.header.offsetHeight
-        , hfooter = UI.footer.offsetHeight
-        , innerHeight = `${hwindow - (hheader + hfooter)}px`
-
-  }
-
   /**
     Rend visible l'élément +o+ {HTMLElement} dans son parent
   **/
@@ -74,7 +65,6 @@ const UI = {
 }
 Object.defineProperties(UI,{
   body:{get(){return document.querySelector('body')}}
-, header:{get(){return document.querySelector('section#header')}}
 , footer:{get(){return document.querySelector('section#footer')}}
 , UI_HEIGHT:{get(){return window.innerHeight}}
 , UI_WIDTH: {get(){return window.innerWidth}}
