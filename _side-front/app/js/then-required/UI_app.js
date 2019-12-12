@@ -7,8 +7,6 @@ Object.assign(UI,{
         , hwindow = this.UI_HEIGHT
         , hfooter = UI.footer.offsetHeight
         , innerHeight = `${hwindow - (hfooter + 100)}px`
-
-    this.siteContainer.style.height = innerHeight
   }
 
 })

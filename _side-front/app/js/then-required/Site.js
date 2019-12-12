@@ -18,11 +18,57 @@ class Site {
 
   /**
     Ouvre l'url dans la fenêtre du site
+    (version avec interface)
   **/
   static open(url, params){
     this.current = new Site(url, params)
+    // Il faut copier l'interface sur le site
+    // Pour le moment, on le fait de façon statique, mais ce sera dynamique ensuite
+    const srcFolder = path.join('.','_side-front','SiteWebTestor-API','siteweb-testor-api')
+    const dstFolder = path.join(App.homeDirectory,'Sites','AlwaysData','Icare_AD_2018','siteweb-testor-api')
+    fs.existsSync(dstFolder) || fs.mkdirSync(dstFolder)
+    var mainHasBeenUpdated = false
+    // sera mis à true si une actualisation a été nécessaire, pour savoir
+    // s'il faudra actualiser le fichier main.html
+    var noUpdateRequired = true
+    for(var nfile of ['main.html','main.js','api.js','main.css']){
+      var src = path.join(srcFolder, nfile)
+      var dst = path.join(dstFolder, nfile)
+      if ( !fs.existsSync(dst) || (fs.statSync(src).mtime > fs.statSync(dst).mtime) ){
+        console.log("Création/actualisation du fichier '%s'", dst)
+        fs.existsSync(dst) && fs.unlinkSync(dst)
+        if ( nfile == 'main.html') {
+          this.updateMainHtmlFile(srcFolder,dstFolder)
+          mainHasBeenUpdated = true
+        } else {
+          fs.copyFileSync(src,dst)
+          noUpdateRequired = false
+        }
+      }
+    }
+    // Actualiser aussi main.html si nécessaire
+    mainHasBeenUpdated || noUpdateRequired || this.updateMainHtmlFile(srcFolder,dstFolder)
+
+    // Maintenant que l'interface est prête sur le site, on peut le charger
+    // Le chargement correspond à ouvrir le fichier main.html dans
+    // l'iframe#interface qui va lui-même ouvrir le site dans son iframe#site
     this.current.load()
   }
+
+  static updateMainHtmlFile(srcFolder,dstFolder){
+    var src = path.join(srcFolder,'main.html')
+    var dst = path.join(dstFolder,'main.html')
+    var code = fs.readFileSync(src,'utf8')
+    code = code.replace(/_TIME_/g, String(Number(new Date())))
+    fs.writeFileSync(dst,code,'utf8')
+  }
+  // /**
+  //   Ouvre l'url dans la fenêtre du site (OLD VERSION)
+  // **/
+  // static open(url, params){
+  //   this.current = new Site(url, params)
+  //   this.current.load()
+  // }
 
   static get current(){return this._current}
   static set current(v){
@@ -45,8 +91,8 @@ class Site {
 
     this.hasCss = this.hasCss.bind(this)
     this.click  = this.click.bind(this)
-    this.afterClick = this.afterClick.bind(this)
-    this.afterSearchInPage = this.afterSearchInPage.bind(this)
+    // this.afterClick = this.afterClick.bind(this)
+    // this.afterSearchInPage = this.afterSearchInPage.bind(this)
   }
 
   /** ---------------------------------------------------------------------
@@ -66,79 +112,35 @@ class Site {
     * Méthodes d'interaction
     *
   *** --------------------------------------------------------------------- */
-  click(selector, args){
-    selector = selector.replace(/\"/g,'\\"')
-    return this.exec(
-        `function(){document.querySelector("${selector}").click();return true}`
-    ).then(this.afterClick)
-  }
-  afterClick(res){
-    console.log("resultat du click :", res)
-  }
+  click(selector,args){
 
-  fill(form, values){
-    console.log("Je dois remplir le formulaire avec",form, values)
   }
+  fill(selector,args){
+
+  }
+  // click(selector, args){
+  //   selector = selector.replace(/\"/g,'\\"')
+  //   return this.exec(
+  //       `function(){document.querySelector("${selector}").click();return true}`
+  //   ).then(this.afterClick)
+  // }
+  // afterClick(res){
+  //   console.log("resultat du click :", res)
+  // }
+  //
+  // fill(form, values){
+  //   console.log("Je dois remplir le formulaire avec",form, values)
+  // }
 
   /** ---------------------------------------------------------------------
     *   SOUS-MÉTHODES DE TEST
     *
   *** --------------------------------------------------------------------- */
 
-  /**
-    Exécution d'un code JS sur le site
-    cf. le manuel du développeur pour le détail, car c'est un peu complexe
-  **/
-  exec(code){
-    return new Promise((ok,ko)=>{
-      this.execResult.ok = ok
-      // Finalisation du code pour envoi
-      var now = Number(new Date())
-      var f_code = code.replace(/\"/g,'\\"')
-      console.log("f_code = ", f_code)
-      code = `var res${now};try{res${now}={code:'${f_code}',resultat:${code}()}}catch(err){res${now}={error:err.message,backtrace:err.backtrace}};console.log(res${now});const fs${now}=require('fs');fs${now}.writeFileSync("${this.relPathExecuteJSResult}",JSON.stringify(res${now}),'utf8');`
-      console.log("Code transmis : ", code)
-      ipcRenderer.send('execute-js', {code:code})
-    })
-  }
-  execResult(result) {
-    console.log("-> execResult", result)
-    this.execResult.ok.call(this, result)
-  }
-
-  /**
-    Le path du fichier dans lequel sera copié le résultat de l'exécution du
-    code JS sur le site.
-  **/
-  get relPathExecuteJSResult(){return './.result-from-execute-js.json'}
-
-  afterSearchInPage(result){
-    console.log("Résultat après la recherche dans la page : ", result)
-  }
-
   async searchInPage(selector, args){
-    selector = selector.replace(/\"/g,'\\"')
-    return this.exec(`function(){return !!document.querySelector("${selector}")}`)
-    .then(this.afterSearchInPage)
-    return
-
-    if (!this.container.querySelector(selector)){return false}
-    if (undefined === args) return true
-    // S'il y a des arguments, il faut chercher dans tous les sélecteurs
-    // possibles
-    var allSelectors = [].slice.call(this.container.querySelectorAll(selector))
-    console.log("allSelectors = ",allSelectors)
-    args.text = args.text || args.inner
-    var sel
-    while ( sel = allSelectors.shift() ){
-      if ( args.text ) {
-        if ( sel.innerHTML.match(args.text) ) {
-          return true
-        }
-      }
-    }
     return false
   }
+
   /**
     Chargement du site dans la page
 
@@ -146,26 +148,27 @@ class Site {
     et des query-strings
   **/
   load(url){
-    ipcRenderer.send('load-url', {url:url||this.url, params:this.params})
+    // this.container.src = url || this.url
+    // TODO Faire une classe SWTInterface si ça fonctionne
+    this.interface.src = path.join(this.url,'siteweb-testor-api','main.html')
   }
 
-  onClick(ev, href){
-    console.log("Clic sur '%s'", href)
-    stopEvent(ev) // doit empêcher le href de s'exécuter
+  get interface(){
+    return this._interface || (this._interface = DGet('iframe#interface'))
   }
 
-  get container(){
-    return this._container || (this._container = UI.siteContainer)
-  }
+  // get container(){
+  //   return this._container || (this._container = UI.siteContainer)
+  // }
 
 }
 
-ipcRenderer.on('res-from-executeJS', function(event, err){
-  if ( err ) {
-    App.onError(err)
-  } else {
-    var sol = JSON.parse(fs.readFileSync(site.relPathExecuteJSResult,'utf8'))
-    // console.log("Retour de executeJavaScript sur le site  = ", sol)
-    site.execResult(sol)
-  }
-})
+// ipcRenderer.on('res-from-executeJS', function(event, err){
+//   if ( err ) {
+//     App.onError(err)
+//   } else {
+//     var sol = JSON.parse(fs.readFileSync(site.relPathExecuteJSResult,'utf8'))
+//     // console.log("Retour de executeJavaScript sur le site  = ", sol)
+//     site.execResult(sol)
+//   }
+// })

@@ -1,19 +1,36 @@
-/*
-  Partie contenant le site
- */
-#site {
-  border:1px dashed green;
-  position:fixed;
-  top:0;
-  left:0;
-  width:90%;
-  overflow:auto;
+body {
+  padding:2em;
+  margin:0;
 }
-
 /*
   Partie contenant le feuille de test en édition
  */
-
 section#test {
+  position:fixed;
   border:1px dashed red;
+  overflow:auto;
+  width:600px;
+  right:80px;
+}
+
+section#test textarea#code {
+  background-color:black;
+  color:white;
+  font-family:monospace;
+  font-size:11.3pt;
+  min-height:600px;
+  width:100%;
+}
+
+
+/*
+  Partie contenant l'interface
+ */
+iframe#interface {
+  position:fixed;
+  left:0;
+  left:0;
+  width:800px;
+  height:600px;
+  overflow:auto;
 }

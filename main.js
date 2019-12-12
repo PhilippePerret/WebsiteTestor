@@ -35,55 +35,55 @@ function initialize () {
     console.log("Fichier main.html actualisé")
   }
 
-  // Création de la fenêtre qui va contenir le site
-  function createSiteWindow(){
-    const windowOptions = {
-        width: 1000             // TODO Customisable
-      , minWidth: 680           // TODO Customisable
-      , height: 700             // TODO Customisable
-      , left: 0
-      , top: 0
-      , icon: __dirname+'/Imagerie/Icone/Icone-1024x1024.icns'
-      , title: app.name
-      , webPreferences: {
-          nodeIntegration: true
-        }
-    }
-
-    // // Si on est sur Linux
-    // if (process.platform === 'linux') {
-    //   windowOptions.icon = path.join(__dirname, '/assets/app-icon/png/512.png')
-    // }
-
-    // On ouvre la fenêtre principale…
-    siteWindow = new BrowserWindow(windowOptions)
-    // Et on charge dedans le fichier principal
-
-    // Chargement d'un fichier html
-    // On ne charge rien dedans pour le moment
-    // siteWindow.loadURL(path.join('file://', __dirname, '/_side-front/xmain.html'))
-
-    // Launch fullscreen with DevTools open, usage: npm run debug
-    if (debug) {
-      siteWindow.webContents.openDevTools()
-      siteWindow.maximize()
-      require('devtron').install()
-    }
-
-    // Quand on ferme la fenêtre, on détruit l'instance
-    siteWindow.on('closed', () => {
-      siteWindow = null
-    })
-  }
+  // // Création de la fenêtre qui va contenir le site
+  // function createSiteWindow(){
+  //   const windowOptions = {
+  //       width: 1000             // TODO Customisable
+  //     , minWidth: 680           // TODO Customisable
+  //     , height: 700             // TODO Customisable
+  //     , left: 0
+  //     , top: 0
+  //     , icon: __dirname+'/Imagerie/Icone/Icone-1024x1024.icns'
+  //     , title: app.name
+  //     , webPreferences: {
+  //         nodeIntegration: true
+  //       }
+  //   }
+  //
+  //   // // Si on est sur Linux
+  //   // if (process.platform === 'linux') {
+  //   //   windowOptions.icon = path.join(__dirname, '/assets/app-icon/png/512.png')
+  //   // }
+  //
+  //   // On ouvre la fenêtre principale…
+  //   siteWindow = new BrowserWindow(windowOptions)
+  //   // Et on charge dedans le fichier principal
+  //
+  //   // Chargement d'un fichier html
+  //   // On ne charge rien dedans pour le moment
+  //   // siteWindow.loadURL(path.join('file://', __dirname, '/_side-front/xmain.html'))
+  //
+  //   // Launch fullscreen with DevTools open, usage: npm run debug
+  //   if (debug) {
+  //     siteWindow.webContents.openDevTools()
+  //     siteWindow.maximize()
+  //     require('devtron').install()
+  //   }
+  //
+  //   // Quand on ferme la fenêtre, on détruit l'instance
+  //   siteWindow.on('closed', () => {
+  //     siteWindow = null
+  //   })
+  // }
 
   // Création de la fenêtre principale
   function createMainWindow () {
     const windowOptions = {
-        width: 1000             // TODO Customisable
-      , minWidth: 680
-      , height: 840
-      , left: 400
-      , top:  400
+        width: 1980
+      , height: 900
+      , x: 0
+      , y:  0
+      , frame: false
       , icon: __dirname+'/Imagerie/Icone/Icone-1024x1024.icns'
       , title: app.name
       , webPreferences: {
@@ -121,7 +121,7 @@ function initialize () {
   **/
   app.on('ready', () => {
     createMainWindow()
-    createSiteWindow()
+    // createSiteWindow()
   })
 
   /**
@@ -173,16 +173,16 @@ function loadMainProcessFiles () {
 
 initialize()
 
-ipcMain
-  .on('load-url', (ev, {url, params}) => {
-    siteWindow.loadURL(url)
-  })
-  .on('execute-js', (event, {code, options}) => {
-    siteWindow.webContents.executeJavaScript(code)
-      .then( function(res){
-        event.sender.send('res-from-executeJS', null)
-      })
-      .catch(function(err){
-        event.sender.send('res-from-executeJS', err)
-      })
-  })
+// ipcMain
+//   .on('load-url', (ev, {url, params}) => {
+//     siteWindow.loadURL(url)
+//   })
+//   .on('execute-js', (event, {code, options}) => {
+//     siteWindow.webContents.executeJavaScript(code)
+//       .then( function(res){
+//         event.sender.send('res-from-executeJS', null)
+//       })
+//       .catch(function(err){
+//         event.sender.send('res-from-executeJS', err)
+//       })
+//   })
