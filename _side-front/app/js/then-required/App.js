@@ -2,25 +2,25 @@
 
 window.name = "Mon application testeur";
 
-window.addEventListener('message', (retour) => {
-  console.log("Mes données reçues", retour.data)
-})
+// window.addEventListener('message', (retour) => {
+//   console.log("Mes données reçues", retour.data)
+// })
 
 Object.assign(App,{
+
   async onInit(){
     TestCode.init()
+
+    // Placer là où ça doit être TODO
+    UI.interface = document.getElementById('interface').contentWindow;
+
     /*
       Mettre ici le code à exécuter à l'initialisation de l'application
       (après le chargement complet de la page)
     */
-    await Site.open('http://localhost/AlwaysData/Icare_AD_2018/')
-    // Site.open('http://./_side-front/essai.html')
-
-    UI.interface = document.getElementById('interface').contentWindow;
-
-    setTimeout(()=>{
-      UI.interface.postMessage({"bon baiser":"De Russie"},'*')
-    },4000)
+    const dstURI    = 'http://localhost/AlwaysData/Icare_AD_2018/'
+    const dstFolder = path.join(App.homeDirectory,'Sites','AlwaysData','Icare_AD_2018')
+    await SWTestor.open(dstURI, dstFolder)
 
   }
 

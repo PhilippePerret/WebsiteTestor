@@ -80,33 +80,50 @@ Et il peut l’évaluer.
 
 
 
-## Autre fonctionnement possible
+### Détail des opérations avec les méthodes et objets fournis
 
-Un autre fonctionnement serait peut-être possible (autre que celui de travailler avec deux fenêtres). Il consisterait à
+1. On demande l’ouverture d’un site avec `SWTestor.open(url, path)`
 
-- avoir le site dans un `iframe`, sur la page de l'application
-- l’application qui gère les tests
-- un script où une mini-application qui serait placé (en `ssh` par exemple) à la racine du site testé (dont on serait forcément le propriétaire) et qui permettrait, grâce à une API, de communiquer avec le site.
+   `url` est l’URI entière pour atteindre le site local ou distant. Par exemple `http://localhost/monSite/`
 
-## Communication entre fenêtre des tests et site
+   `path` est le chemin d’accès absolu au dossier du site, en local ou en distant (pour le moment, on ne gère que les sites locaux, donc il faut copier le dossier `siteweb-testor-api`sur le site.
 
-Normalement, il n’est pas possible de communiquer entre la fenêtre qui va contenir le site et la fenêtre qui contient les tests.
+2. La méthode `SWTestor.open` :
 
-Pour se faire, on utilise un fichier provisoire.
+   1. crée une instance `SWTestor` et la met en instance courante (`SWTestor.current`),
+   2. appelle la méthode `<testor>.prepareForTest` pour préparer le site pour les tests, c’est-à-dire, essentiellement, copie le dossier `./_side-front/SiteWebTestor-API/siteweb-testor-api/` sur le site local (par SSH) ou distant,
+   3. appelle la méthode `<testor>.load` pour véritablement charger le site.
 
-**Fonctionnement général**
+3. La méthode `<testor>.load` :
 
-- On envoie un code Javascript à exécuter sur le site (par exemple le test de la présence d’un élément, un click sur un lien, etc.)
-- Le code à exécuter produit, site-side (côté site), un fichier qui contient le résultat de l’opération.
-- L’application test-side (côté test) lit le fichier pour connaitre le résultat et l’évalue.
+   1. instancie une instance `{SWTInterface}`qui permettra la communication entre le site web et le testeur `<testor>`,
+   2. appelle la méthode `<interface>.src(…)` pour définir la source du site, et donc charger le site dans la fenêtre (i.e. dans l’`iframe` du `main.html` de l’interface).
 
-**Fonctionnement détaillé**
+4. Quand la page est prête (testée dans le `main.js` du dossier test sur le site) :
 
-- On appelle la méthode `site.exec` avec en argument le code à évaluer,
-- la méthode `site.exec` finalise le code et le transmet au processus principal en émettant un évènement `execute-js`,
-- la méthode `site.exec` retourne une promesse,
-- Le processus principal transmet le code à la fenêtre du site,
-- La fenêtre du site exécute le code et met le résultat dans un fichier du dossier test (note : c’est le code envoyé par `site.exec` qui gère le code d’écriture du fichier et tout le tralala nécessaire),
-- Le code une fois exécuté émet un évènement `res-from-executeJS` reçu par le renderer avec en argument `null` si tout s’est bien passé ou le message d’erreur si une erreur a été rencontrée (le mieux est quand même de mettre le code dans un `try{}catch{}` pour le gérer en détail),
-- le gestionnaire d’évènement appelle alors la méthode `site.execResult()` avec en argument l’objet JSON récupéré du fichier.
-- la méthode `site.execResult` appelle la méthode de résolution de la promesse de `site.exec` et poursuit donc le test.
+   1. l’instance `{Interface} <swtInterface>` côté site envoie un message à l’interface `{SWTInterface}` côté testeur pour lui dire que le site est prêt à être testé (`{'firstReady':true})` à l’aide la méthode `sendTestor(<data>)`. Note : la méthode s’appelle « send Testor » mais c’est en fait à l’interface du testeur que sont envoyés tous les messages.
+   2. `<swtInterface>` (côté site), en recevant le `firstReady = true`, dit au testeur qu’il peut commencer ses tests en appelant `<testor>.start()`.
+
+5. `<testor>.start` lance les tests. Pour les essais, il envoie aussi un message à afficher par le site, à l’aide de sa méthode `<testor>.sendMessage(<msg>)`. Note : il peut utiliser la méthode `<testor>.send(<data>)` pour envoyer des données, et notamment avec la propriété `eval:` qui donne le code à évaluer côté site. Par exemple, `<testor>.send({eval:'alert("Salut le monde !")'})` provoquera l’affichage du message « Salut le monde ! » sur le site.
+
+
+
+## Envoyer un code à évaluer sur le site
+
+Pour envoyer un code à évaluer sur le site, utiliser l’instance `{SWTestor}` courante (`<testor>`) avec :
+
+~~~javascript
+testor.send({eval: "<code à évaluer>"})
+~~~
+
+Par exemple :
+
+~~~javascript
+testor.send({eval: "document.querySelector('H1').innerHTML"})
+~~~
+
+Cet envoi relèvera le contenu de la première balise `H1` du site et retournera le résultat au testeur.
+
+Note (TODO) : ajouter un numéro unique de requête dans les données envoyées (ou se servir du time ?) pour retourner la donnée. De cette manière, plusieurs requêtes asynchrones peuvent être envoyées sans se « perdre » .
+
+TODO : réfléchir à comment faire. Faut-il une instance requête qui facilite tout ça ? Toute demande au site s’appelant une requête.
