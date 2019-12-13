@@ -127,3 +127,31 @@ Cet envoi relèvera le contenu de la première balise `H1` du site et retournera
 Note (TODO) : ajouter un numéro unique de requête dans les données envoyées (ou se servir du time ?) pour retourner la donnée. De cette manière, plusieurs requêtes asynchrones peuvent être envoyées sans se « perdre » .
 
 TODO : réfléchir à comment faire. Faut-il une instance requête qui facilite tout ça ? Toute demande au site s’appelant une requête.
+
+
+
+## Feuille de test
+
+Pour le moment, des vœux pieux.
+
+* aucune asynchronicité déclarée (voir le [fonctionnement sans déclaration d'async](#foncsansasync))
+
+
+
+<a name=" foncsansasync"></a>
+
+### Fonctionnement sans déclaration d'async
+
+Pour le fonctionnement sans asynchronicité, on part simplement du principe que chaque ligne de test est asynchrone. Mais chaque ligne de test ne fait que remplir une pile d’exécution qui ne sera lancée que lorsque toute la pile aura été remplie.
+
+Par exemple, si on a :
+
+~~~javascript
+tag("div#titre_site").is("Atelier Icare")
+click('a[href="login"]')
+fill("form#form_user_login").with({user_mail:'...', user_password:'...'}.submit())
+~~~
+
+Alors chaque ligne, `tag`, `click`, `fill`, etc. ne va faire qu’alimenter la pile d’exécution qui ne sera lancée que lorsque toute la feuille de test aura été chargée.
+
+Donc, `tag("…")`, d’abord, définit une recherche de balise dans la page. L’interface site attendra cette balise jusqu’à ce qu’elle soit présente dans la page.

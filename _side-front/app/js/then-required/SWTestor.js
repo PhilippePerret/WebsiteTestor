@@ -65,22 +65,62 @@ class SWTestor {
   **/
   start(){
     console.log("-> testor.start()")
-    this.casesList = [
-        {message: "Je vais lancer les tests."}
-      , {eval: 'document.querySelector("div#titre_site").innerHTML'}
-      , {click: 'a[href="signup"]'}
-    ]
-    this.runNextCase()
+    // this.casesList = [
+    //     {message: "Je vais lancer les tests."}
+    //   , {eval: 'document.querySelector("div#titre_site").innerHTML'}
+    //   , {click: 'a[href="signup"]', waitFor:'form#form_user_signup'}
+    //   , {fill: 'form#form_user_signup', values: {user_pseudo:'Phil2.0', user_mail:'phil@chez.lui'}}
+    //   // , {eval:'document.querySelector("form#form_user_signup")'}
+    // ]
+
+    // On charge toutes les feuilles de test
+    // TODO Plus tard, les prendre sur le site, dans le dossier siteweb-testor-api
+    // TODO Pour le moment, on les prend dans le dossier swtTests ici
+    var testFiles = fs.readdirSync("./swtTests",'utf8')
+    console.log("testFiles", testFiles)
+
+    const testsFolder = '../swtTests'
+    testFiles.forEach( p => {
+      // Il faut faire un nouveau SWTest
+      var ptest = `${testsFolder}/${p}`
+      SWTest.current = new SWTest(this, ptest)
+      require(ptest)
+    })
+
+    // Exemple : tester que le div#titre_site soit bien "Atelier Icare"
+    // Le code du test doit être :
+    //  tag('div#titre_site').contains('Atelier Icare')
+    // Il faudrait que cette ligne produise :
+    //    - envoi de {eval:DGet('...').innerHTML, expected:'Atelier Icare'}
+    //
+    // Si je ne veux pas qu'il y ait trop de code côté site, il faut
+    // décomposer au maximum ici. Donc, être capable, ici, de
+    // déterminer que 'tag(...).contains(...)' corresponde à la lecture
+    // d'une balise et de son contenu, et que son contenu soit égal à la
+    // valeur attendu.
+    // Ici, 'tag(...)' pourrait appeler une méthode qui va chercher la balise
+    // correspondante.
+
+    this.runNextTest()
   }
 
-  runNextCase(){
-    console.log("-> runNextCase")
-    var curCase = this.casesList.shift()
-    if ( curCase ) {
-      this.sendToSite(curCase)
+  runNextTest(){
+    console.log("-> runNextTest")
+    var curTest = SWTest.items.shift()
+    if (curTest) {
+      // <= il y a encore des feuilles de test à jouer
+      // => On joue la feuille de test
+      console.log("curTest:", curTest)
+      curTest.run()
     } else {
-      console.log("TEST TERMINÉ !")
+      // <= Il n'y a plus de feuille de test à jouer
+      // => On peut afficher le rapport
+      this.displayReport()
     }
+  }
+
+  displayReport(){
+    console.log("= RAPPORT DE FIN DES TESTS =")
   }
 
   /** ---------------------------------------------------------------------

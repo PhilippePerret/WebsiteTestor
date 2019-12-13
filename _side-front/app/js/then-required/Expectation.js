@@ -11,12 +11,11 @@ class Expectation {
     * INSTANCE
     *
   *** --------------------------------------------------------------------- */
-  constructor( resultatOK, params ){
-    this.ok     = !!resultatOK
-    this.params = params
+  constructor( owner ){
+    this.owner = owner
   }
 
-  get result(){
-    return this.ok
+  evaluate(ok){
+    console.log("Le résultat pour ce test est ", ok)
   }
 }

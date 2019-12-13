@@ -29,14 +29,16 @@ class SWTInterface {
     qu'on ne peut pas faire de détail au niveau de l'évènement 'messsage')
   **/
   onMessage(ev){
-    console.log("Message reçu par SWInterface :", ev.data)
+    const data = ev.data
+    console.log("Message reçu par SWInterface :", data)
     if ( ev.data.firstReady ) {
       this.testor.start()
     } else {
       // Autre message reçu par le site, à traiter
-      console.log("[INTERFACE] retourne : ", ev.data)
+      console.log("[INTERFACE] retourne : ", data)
       // On peut évaluer ou passer à la suite
-      this.testor.runNextCase()
+      SWTest.get(data.swtest).afterRunCase(data)
+      // this.testor.runNextCase()
     }
   }
 

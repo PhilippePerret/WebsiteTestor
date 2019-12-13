@@ -1,9 +1,14 @@
 'use strict'
 /** ---------------------------------------------------------------------
-  *   Classe SWTest
-  *   -------------
-  *   Gestion des tests (feuilles de tests particulièrement)
+  *   Méthodes de tests
+
+  Sont définies ici toutes les méthodes qu'on peut trouver dans les
+  tests.
+
 *** --------------------------------------------------------------------- */
-class SWTTest {
-  
+
+
+
+function tag(selector){
+  return new Tag(selector)
 }
