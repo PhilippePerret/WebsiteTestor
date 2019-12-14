@@ -53,23 +53,12 @@ class Expectation {
     Le message en fonction du résultat
   **/
   get message(){
-    var propMessage = this.isSuccess ? 'success' : 'failure'
-    this.inverse && (propMessage += 'Inverse')
-    const messages = this.owner/*TCase*/.owner/**/[`${this.data.method}Messages`]()
-    console.log("Messages : ", messages)
-    return messages[propMessage]
-  }
-
-  get successMessage(){ return this._successmessage}
-  set successMessage(v){ this._successmessage = v}
-  get failureMessage(){ return this._failuremessage}
-  set failureMessage(v){ this._failuremessage = v}
-  get successMessageInverse(){ return this._successmessageInverse}
-  set successMessageInverse(v){ this._successmessageInverse = v}
-  get failureMessageInverse(){ return this._failuremessageInverse}
-  set failureMessageInverse(v){ this._failuremessageInverse = v}
-
-  get pendingMessage(){
-    return "Message pending non encore défini."
+    if ( this.isPending ) {
+      return this.data.pending || "Pending"
+    } else {
+      var propMessage = this.isSuccess ? 'success' : 'failure'
+      this.inverse && (propMessage += 'Inverse')
+      return this.owner/*TCase*/.owner/**/[`${this.data.method}Messages`](this.data)[propMessage]
+    }
   }
 }

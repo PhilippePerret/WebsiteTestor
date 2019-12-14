@@ -17,7 +17,7 @@ class Tag extends SWTSubject {
     Inversion de la commande qui suit
     Note : sera "dépolarisé" (remise à false) dès utilisation.
   **/
-  not(){
+  get not() {
     this.inverse = true
     return this // chainage
   }
@@ -40,7 +40,7 @@ class Tag extends SWTSubject {
       , type: type
       , eval:`!!document.querySelector("${this.selector}")`
       , waitFor: this.selector
-      , expectedValue: true
+      , expected: true
       , options: options
       , inverse: this.inverse
     })
@@ -54,7 +54,8 @@ class Tag extends SWTSubject {
     }
   }
   existsEvaluate(data){
-    data.result == (data.expected == data.result)
+    console.log("Data pour évaluation : ", data)
+    data.success = !data.inverse == (data.expected == data.result)
   }
 
   /**
@@ -68,12 +69,23 @@ class Tag extends SWTSubject {
       , type: type
       , eval:`document.querySelector("${this.selector}").innerHTML`
       , waitFor: this.selector
-      , expectedValue: expected
+      , expected: expected
       , options: options
       , inverse: this.inverse
     })
     // On dépolarise tout de suite
     if ( this.inverse === true ) this.inverse = false
+  }
+  containsMessages(data){
+    return {
+      success: `La balise ${this.selector} contient "${data.expected}"`
+    , failure: `La balise ${this.selector} devrait contenir "${data.expected}"`
+    , successInverse: `La balise ${this.selector} ne contient pas "${data.expected}"`
+    , failureInverse: `La balise ${this.selector} ne devrait pas contenir "${data.expected}"`
+    }
+  }
+  containsEvaluate(data){
+    data.success = !data.inverse == (data.expected == data.result)
   }
 
   /**

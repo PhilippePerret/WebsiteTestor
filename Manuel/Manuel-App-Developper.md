@@ -110,15 +110,37 @@ En l’occurrence, les data du TCase de notre ligne sont envoyé à l’interfac
 Les choses se passent ensuite côté *Testor*.
 
 * l’instance interface `SWTInterface` reçoit les données par sa méthode `onMessage(...)`
+
 * elle récupère le `TCase` de la ligne en se servant de la propriété `id` des données retournées,
+
 * elle appelle la méthode `afterRun` du TCase en lui transmettant les données de l'exécution,
+
 * la méthode `<tcase>.afterRun` appelle la méthode `evaluate` du sujet, ici, par exemple l’objet `Tag`. Note : la méthode `evaluate` est en fait une méthode de la classe abstrait `SWTSubject` qui va appeler dans l’objet une méthode propre dont le nom est construit à partir du nom de la méthode (`exists` ici) et le suffixe `Evaluate` et seulement si le type de l’opération est `expectation`.
+
 * Note : la méthode abstraite `SWTSubject.evaluate` traite le cas où `data.systemError` est définie et donc où une erreur système a été rencontrée avec ce cas.
+
 * la méthode de l’objet principal, `Tag.existsEvaluate`, évalue le résultat en fonction des données envoyées. Ici, par exemple, c’est la méthode `exists`, il faut voir si `inverse` est vrai dans les propriéts et produire le résultat en fonction de `result`. Ici, `result` est le résultat de l’évaluation de `!!document.queryQuery("div#mondiv")` donc a été mis à `true` si l’élément a été trouvé dans la page.
-* la méthode `evaluate` produit une nouvelle expectation avec le résultat :
-  * si le texte est conforme, elle produit un succès (success) qui est ajouté aux succès du `swtest` de la feuille de test
-  * si le texte n’est pas celui attendu, elle produit un échec (failure) qui est ajouté aux échecs du `swtest` de la feuille de test
-* si l’option `—fail-fast` a été utilisée, les tests s’arrêtent, sinon, on passe à la ligne suivante.
+
+* Note : en fait, chaque méthode d’objet (par exemple `exists`) fonctionne sur la base de trois méthodes :
+
+  * `<method>` qui est la méthode qui est appelée par la feuille de test, sur l’objet,
+  * `<method>Messages` qui retourne les quatre messages possibles, `success`, `failure`, `successInverse` et `failureInverse` qui serviront pour le rapport,
+  * `<method>Evaluate(data)` qui permet d’évaluer le résultat obtenu côté site et, notamment, définit la valeur de `data.success`, true si c’est un succès (tenant compte de l’inversion possible par `not`).
+
+  Donc, ici, on trouve les méthodes et propriétés `Tag.exists()`, `Tag.existsMessages(data)` et `Tag.existsEvaluate(data)`.
+
+* la méthode `TCase.afterRun` définit les `data` de l’expectation qui lui est associée,
+
+* puis elle demande l’affichage du rapport en appelant la méthode `Expectation#writeShortReport()
+
+* la méthode `<tcase>.expectation.writeShortReport()` écrit sa ligne `reportLine` dans l’interface. Les méthodes de la classe `Expectation` n’ont pas à être modifiées.
+
+* Le Testor a ensuite plusieurs solutions : 
+
+  * si une erreur système est survenue, et que l’option `--fail-fast` est activée, il s'arrête
+  * si une erreur système est survenue, sans option `—fail-fast`, il passe à la feuille de tests suivant,
+  * pareil avec les erreurs de test
+  * sinon, il passe normalement à la prochaine ligne de test, le prochain `TCase`.
 
 ### Détail des opérations avec les méthodes et objets fournis
 
