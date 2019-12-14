@@ -19,7 +19,12 @@ class SWTestor {
   **/
   static open(url, dstFolder){
     this.current = new SWTestor(url, dstFolder)
-    this.current.prepareForTests()
+
+    // TODO Pour l'application finale, utiliser la première (qui ne recrée
+    // pas chaque fois tout le dossier)
+    // this.current.prepareForTests()
+    this.current.prepareForTestsModeDev()
+
     this.current.load()
   }
 
@@ -54,10 +59,6 @@ class SWTestor {
     this.url    = url
     this.folder = folder
 
-    this.hasCss = this.hasCss.bind(this)
-    this.click  = this.click.bind(this)
-    // this.afterClick = this.afterClick.bind(this)
-    // this.afterSearchInPage = this.afterSearchInPage.bind(this)
   }
 
   /**
@@ -140,34 +141,21 @@ class SWTestor {
     * Méthodes d'interaction
     *
   *** --------------------------------------------------------------------- */
-  click(selector,args){
-    this.sendToSite({click:'a[href="signup"]'})
-  }
-  fill(selector,args){
-
-  }
-  // click(selector, args){
-  //   selector = selector.replace(/\"/g,'\\"')
-  //   return this.exec(
-  //       `function(){document.querySelector("${selector}").click();return true}`
-  //   ).then(this.afterClick)
+  // click(selector,args){
+  //   this.sendToSite({click:'a[href="signup"]'})
   // }
-  // afterClick(res){
-  //   console.log("resultat du click :", res)
-  // }
+  // fill(selector,args){
   //
-  // fill(form, values){
-  //   console.log("Je dois remplir le formulaire avec",form, values)
   // }
 
-  /** ---------------------------------------------------------------------
-    *   SOUS-MÉTHODES DE TEST
-    *
-  *** --------------------------------------------------------------------- */
-
-  async searchInPage(selector, args){
-    return false
-  }
+  // /** ---------------------------------------------------------------------
+  //   *   SOUS-MÉTHODES DE TEST
+  //   *
+  // *** --------------------------------------------------------------------- */
+  //
+  // async searchInPage(selector, args){
+  //   return false
+  // }
 
   /** ---------------------------------------------------------------------
     *   Messages de communication
@@ -213,11 +201,20 @@ class SWTestor {
   //   return this._container || (this._container = UI.siteContainer)
   // }
 
-  prepareForTests(){
+  /**
+    Préparation du dossier pour le site en mode développement
+    En mode normal, on ne reconstruit le dossier que si des fichiers ont
+    été modifiés, mais en mode développement, on recrée chaque fois tous
+    les fichiers
+  **/
+  prepareForTestsModeDev(){
+    console.log("-> SWTestor#prepareForTestsModeDev (dossier pour le site)")
     // Il faut copier l'interface sur le site
     // Pour le moment, on le fait de façon statique, mais ce sera dynamique ensuite
     const srcFolder = path.join('.','_side-front','SiteWebTestor-API','siteweb-testor-api')
     const dstFolder = path.join(this.folder, 'siteweb-testor-api')
+    // Pour le moment, on recrée à chaque fois
+    fs.existsSync(dstFolder) && exec(`rm -rf "${dstFolder}"`)
     fs.existsSync(dstFolder) || fs.mkdirSync(dstFolder)
 
     // Par défaut, on considère que le fichier main.html est à jour
@@ -231,28 +228,105 @@ class SWTestor {
     // qu'une seule fois le travail pour un site donné. Ici, on vérifie l'anté-
     // riorité pour avoir toujours un site à jour.
     var nfiles = fs.readdirSync(srcFolder,'utf8').map( p => path.basename(p))
+    // Pour mémoriser la liste des scripts (plus tard, on les ajoutera
+    // dynamiquement)
+    var scripts = []
+    // Pour mémoriser les css
+    var csss = []
+    // Now pour forcer le chargement
+    const now = String(Number(new Date()))
+    // On boucle sur chaque fichier
     for(var nfile of nfiles){
+      if ( nfile == 'main.html' ) {
+        continue
+      } else {
+        // Le nouveau nom unique du fichier
+        var unfile = path.basename(nfile, path.extname(nfile)) + now + path.extname(nfile)
+        // console.log("unfile = '%s'", unfile)
+        var src = path.join(srcFolder, nfile)
+        var dst = path.join(dstFolder, unfile)
+        console.log("Création du fichier '%s'", dst)
+        fs.existsSync(dst) && fs.unlinkSync(dst)
+        fs.copyFileSync(src, dst)
+        noUpdateRequired = false
+        if ( nfile.endsWith('.js') ) {
+          scripts.push(unfile)
+        } else if (nfile.endsWith('.css')){
+          csss.push(unfile)
+        }
+      }//si ce n'est pas le fichier main.html
+    }
+    // Actualiser aussi main.html
+    this.updateMainHtmlFile(srcFolder,dstFolder, csss, scripts)
+  }
+
+  prepareForTests(){
+    console.log("-> SWTestor#prepareForTests (dossier pour le site)")
+    // Il faut copier l'interface sur le site
+    // Pour le moment, on le fait de façon statique, mais ce sera dynamique ensuite
+    const srcFolder = path.join('.','_side-front','SiteWebTestor-API','siteweb-testor-api')
+    const dstFolder = path.join(this.folder, 'siteweb-testor-api')
+    // Pour le moment, on recrée à chaque fois
+    fs.existsSync(dstFolder) && exec.sync(`rm -rf "${dstFolder}"`)
+    fs.existsSync(dstFolder) || fs.mkdirSync(dstFolder)
+
+    // Par défaut, on considère que le fichier main.html est à jour
+    var mainIsUpToDate = true
+    // sera mis à true si une actualisation a été nécessaire, pour savoir
+    // s'il faudra actualiser le fichier main.html
+    var noUpdateRequired = true
+    // On récupère tous les fichiers à copier (il faut qu'il y en ait le
+    // moins possible)
+    // Note : quand l'application sera entièrement prête, on pourra ne faire
+    // qu'une seule fois le travail pour un site donné. Ici, on vérifie l'anté-
+    // riorité pour avoir toujours un site à jour.
+    var nfiles = fs.readdirSync(srcFolder,'utf8').map( p => path.basename(p))
+    // Pour mémoriser la liste des scripts (plus tard, on les ajoutera
+    // dynamiquement)
+    var scripts = []
+    // Pour mémoriser les css
+    var csss = []
+    // Now pour forcer le chargement
+    const now = String(Number(new Date()))
+    for(var nfile of nfiles){
+      // Le nouveau nom unique du fichier
+      // Note : il n'est pas encore utilisé car il serait changé chaque fois
+      // que les tests seraient lancés, sinon
+      var unfile = path.basename(nfile, path.extname(nfile)) + now + path.extname(nfile)
+      // console.log("unfile = '%s'", unfile)
       var src = path.join(srcFolder, nfile)
       var dst = path.join(dstFolder, nfile)
       if ( !fs.existsSync(dst) || (fs.statSync(src).mtime > fs.statSync(dst).mtime) ){
-        // console.log("Création/actualisation du fichier '%s'", dst)
-        fs.existsSync(dst) && fs.unlinkSync(dst)
-        if ( nfile == 'main.html') {
+        if ( nfile == 'main.html' ) {
           mainIsUpToDate = false
+          continue
         } else {
+          console.log("Création/actualisation du fichier '%s'", dst)
+          fs.existsSync(dst) && fs.unlinkSync(dst)
           fs.copyFileSync(src,dst)
           noUpdateRequired = false
+          // Si c'est un fichier javascript, il faut le garder pour le charger
+          if ( nfile.endsWith('.js') ) {
+            scripts.push(unfile)
+          } else if (nfile.endsWith('.css')) {
+            csss.push(unfile)
+          }
         }
       }
     }
     // Actualiser aussi main.html si nécessaire
-    ;(mainIsUpToDate && noUpdateRequired) || this.updateMainHtmlFile(srcFolder,dstFolder)
+    ;(mainIsUpToDate && noUpdateRequired) || this.updateMainHtmlFile(srcFolder,dstFolder, csss, scripts)
   }
-  updateMainHtmlFile(srcFolder,dstFolder){
+  updateMainHtmlFile(srcFolder,dstFolder, csss, scripts){
     var src = path.join(srcFolder,'main.html')
     var dst = path.join(dstFolder,'main.html')
     var code = fs.readFileSync(src,'utf8')
     code = code.replace(/_TIME_/g, String(Number(new Date())))
+    // Remplacement le code des scripts
+    let scriptsCode = scripts.map(nfile=>`<script type="text/javascript" src="${nfile}"></script>`).join("\n")
+    code = code.replace(/___JAVASCRIPTS___/g, scriptsCode)
+    let csssCode = csss.map(nfile => `<link rel="stylesheet" href="${nfile}">`).join("\n")
+    code = code.replace(/___CSSS___/g, csssCode)
     fs.writeFileSync(dst,code,'utf8')
   }
 

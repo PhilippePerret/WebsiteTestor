@@ -11,6 +11,8 @@
     "update-db": "FORCE_REBUILD_DB=true electron .",
     "build": "electron-packager . --platform=darwin --icon=icons/app --asar --out=built --overwrite",
     "build-sans-icone": "electron-packager . --platform=darwin --asar --out=built --overwrite",
+    "man-dev":"open -a Typora ./Manuel/Manuel-App-Developper.md",
+    "man-app":"open -a Typora ./Manuel/Manuel-application.md",
     "dev": "electron . --debug"
   },
   "repository": {

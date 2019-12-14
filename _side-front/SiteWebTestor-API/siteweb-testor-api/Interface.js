@@ -29,7 +29,7 @@ class Interface {
   **/
   receiveFromTestor(ev){
     const data = ev.data
-    console.log("Données reçues du testeur :", data)
+    console.log("Données reçues par Interface.js :", data)
 
     // Si la propriété waitFor est définie dans les données, il
     // faut attendre la présence de cet élément avant d'exécuter le code
@@ -39,6 +39,7 @@ class Interface {
       console.log("Je dois attendre sur l'élément '%s'", data.waitFor)
       this.waitFor(data.waitFor)
         .then(this.treateData.bind(this, data))
+        // TODO Traiter l'erreur (de test, pas système)
         .catch(console.error)
     } else {
       this.treateData.bind(this, data)
@@ -47,8 +48,30 @@ class Interface {
 
   treateData(data){
     console.log('-> treateData(data=)', data)
-    data.message && console.log("[Testor] %s", data.message)
 
+    // On traite la donnée en fonction du contexte fourni
+    const treatmentMethod = `treateDataAs${data.context}`
+    if ( this[treatmentMethod] instanceof Function) {
+      // <= La méthode de traitement existe
+      // => On l'appelle pour exécuter le traitement
+
+      // Si un code est à évaluer directement, on l'évalue
+      data.eval && this.getEvalResult(data)
+      this[treatmentMethod](data)
+    } else {
+      // <= La méthode de traitement n'existe pas
+      // => On produit une erreur système (qui doit interrompre les tests)
+      console.error("Impossible de trouver la méthode de traitement `%s`", treatmentMethod)
+    }
+  }
+
+  /**
+    Si les données définissent la propriété `eval`, c'est un code à évaluer
+    directement sur le site.
+    On met le résultat dans `data.evalResult`
+  **/
+  getEvalResult(data){
+    console.log("-> getEvalResult (un code est à évaluer)")
     var result
     if ( data.eval ) {
       try {
@@ -56,26 +79,34 @@ class Interface {
         result = this.iframe.contentWindow.eval(data.eval)
         // Et on place le résultat dans la data, pour la renvoyer
         // TODO Voir quoi faire lorsque c'est du code asynchrone
-        Object.assign(data, {result: result})
-        // console.log("Résultat de l'évaluation : ", result)
+        Object.assign(data, {evalResult: result, result:result})
       } catch (e) {
         console.error(e)
-        Object.assign(data,{error:e})
+        Object.assign(data,{evalResult:'-system error-', error:e})
       }
     }
-    if ( data.click ) {
-      console.log("* Click souris sur élément *")
-      // Bouton ou lien à cliquer
-      this.siteDocument.querySelector(data.click).click()
-      // this.iframe.contentWindow.document.querySelector(data.click).click()
-    }
-    if ( data.fill ) {
-      // Remplissage de formulaire
-      console.log("* Remplissage de formulaire *")
-      var form = this.siteDocument.querySelector(data.fill)
-      for(var id in data.values){
-        form.querySelector(`#${id}`).value = data.values[id]
-      }
+  }
+
+  /** ---------------------------------------------------------------------
+    *   Méthodes de traitement par contexte
+    *
+  *** --------------------------------------------------------------------- */
+  treateDataAsDom(data){
+
+    console.log("Traitement de l'exécutant comme Dom avec les données :", data)
+
+    switch(data.action){
+      case 'click':
+        console.log("* Click souris sur élément *")
+        this.siteDocument.querySelector(data.subject).click()
+        break
+      case 'fill':
+        console.log("* Remplissage de formulaire *")
+        var form = this.siteDocument.querySelector(data.subject)
+        for(var id in data.values){
+          form.querySelector(`#${id}`).value = data.values[id]
+        }
+        break
     }
 
     this.sendTestor.call(this,data)

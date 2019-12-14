@@ -106,7 +106,89 @@ Et il peut l’évaluer.
 
 5. `<testor>.start` lance les tests. Pour les essais, il envoie aussi un message à afficher par le site, à l’aide de sa méthode `<testor>.sendMessage(<msg>)`. Note : il peut utiliser la méthode `<testor>.send(<data>)` pour envoyer des données, et notamment avec la propriété `eval:` qui donne le code à évaluer côté site. Par exemple, `<testor>.send({eval:'alert("Salut le monde !")'})` provoquera l’affichage du message « Salut le monde ! » sur le site.
 
+6. Voir la partie suivante pour le détail du lancement des tests.
 
+## Description des éléments (classes) d’un test
+
+### Les types de ligne de test
+
+Les tests sont des feuilles de tests javascript qui contiennent une suite de procédures à exécuter. On peut trouver les types de lignes suivants. 
+
+* Les **expectations**,. Ce sont des attentes précises qui produisent un résultat (un succès ou un échec) . Elles sont évaluées en fonction d’informations recueillies (par exemple vérifier qu’un titre soit bien celui qu’on croit).
+* Les **vérifications**. Ce sont aussi des attentes précises, mais elles ne produisent un résultat que lorsqu’elles échouent. Elles sont souvent utilisées en début de test, pour vérifier que la situation est conforme au test.
+*  Les **opérations** qui ne font que performer une action sur la page, comme par exemple le remplissage et la soumission d’un formulaire, un click sur un lien ou un bouton. Elles peuvent produire aussi des résultat, si par exemple le bouton sur lequel on devait cliquer n’a pas été trouvé.
+
+### Les sujets des lignes de test
+
+Une ligne de test commence toujours par un sujet. C’est de ce sujet qu’on attend quelque chose. Par exemple, dans la ligne :
+
+~~~javascript
+tag("#mondiv").contains("ce texte")
+~~~
+
+… le sujet est `tag("#mondiv »)`. C’est un sujet de type `Tag`. qui hérite de la classe `SWTSubject`.
+
+### Création d’un nouveau sujet de ligne de test
+
+(comme par exemple `tag`).
+
+Prenons l’exemple sur sujet `db` qui va permettre de travailler avec la base de données de l’application. Voici les étapes de sa création.
+
+1. Trouver les 3 ou 4 lettres qui vont permettre de le créer, qu’on appellera *méthode de test* (par exemple `tag`, `file` ou `str`). Ici, nous choisissons `db`.
+
+2. Le définir dans le fichier `./_side-front/app/js/then-required/test_methods.js` (dans les lignes suivantes, on ne précisera plus `./_side-front/app/js/`). Cela revient à définir sa `function`, très simplement. On sait déjà que le premier argument sera une requête base qu’il faudra évaluer, donc ici `query`.
+
+   ~~~javascript
+   const db = function(query){ return new SWTDb(query) }
+   ~~~
+
+3. Définir sa *classe sujet* (`SWTDb` ci-dessus) dans un nouveau fichier de nom `testClasses/Db.js` :
+
+   ~~~javascript
+   class SWTDb extends SWTSubject {
+     constructor(query){
+       super()
+       this.query = query
+       this.context = 'Db'
+     }
+   }
+   ~~~
+
+   Noter qu’un sujet doit toujours définir son contexte (`context`). C’est de cette manière que le site (l’interface-site) saura comment traiter le sujet. Pour `tag`, par exemple, le contexte est `Dom`. Le contexte doit commencer par une capitale.
+
+4. Une fois qu’on a défini le contexte, on peut créer sa fonction de traitement du côté site, dans le fichier `./_side-front/SiteWebTesto-API/siteweb-testor-api/interface.js`. C’est une fonction qui portera le préfixe `treateData` et le contexte en suffixe. Donc, ici, on aura :
+
+   ~~~javascript
+   class Interface {
+     //...
+   	treateDataDb(data){
+     
+   	}
+     // ...
+   }
+   ~~~
+
+   
+
+## Lancement des tests
+
+Voilà de façon générale comment les choses fonctionnent à partir de l’appel à `<testor>.start()`.
+
+Rappel : il y a un seul `<testor>` pour une session de test. Ce testor se trouve dans `SWTestor.current`.
+
+1. La méthode commence par relever la liste de tous les fichiers tests du dossier test du site. Ce dossier doit se trouver à la racine du site, avec pour nom `./swtests/`.
+2. De chacun de ces fichiers, le Testor fabrique une instance `SWTest` qui sera considérée comme l’instance de la feuille de test. C’est cette instance qui, plus tard, va jouer chacun des cas empilés dans sa pile d’exécution. Cette instance est mise en instance courante (`SWTest.current`) pour la suite du traitement (pour que le require sache où envoyer les évaluations et les opérations).
+3. Après avoir fabriqué l’instance `SWTest`, le Testor `require` le fichier, qui est du javascript « normal », contenant les évaluations et les opérations. Une évaluation est par exemple du type : `tag("#mondiv").contains("ce texte »)`. Cette évaluation (ou cette opération) crée une instance `{TCase}` qui sera ajoutée à la pile d’exécution (les `cases`) de `SWTest.current`. Pour voir comment la méthode `tag` crée une instance `{TCase}`, cf. [Création des `TCase`s](#creationtcases).
+
+<a name="creationtcases"></a>
+
+### Création des `TCases`
+
+Les méthodes du fichier `test_methods` sont utilisés pour définir les **évaluations** et les **opérations** des fichiers de tests. Il s’agit par exemple de la méthode `tag` qui crée un sujet balise DOM, ou de la méthode `click` qui permet de cliquer un élément.
+
+Que ce soit une *opération* (cliquer un élément, remplir un formulaire) ou une *évaluation*  (vérifier que le contenu d’une balise contient le texte attendu, checker le contenu d’un ficher), une instance `TCase` n'est créée et enregistrée dans la pile d’exécution de la feuille de test (instance `SWTest`) que lorsqu’un test est nécessaire. Par exemple, `tag("#mondiv")` ne produit pas de TCase tandis que `tag("#mondiv").contains("ce texte")` en crée une.
+
+Un `TCase` possède une propriété `expectation` qui est une instance `{Expectation}` qui va permettre d’évaluer le résultat et de produire le rapport.
 
 ## Envoyer un code à évaluer sur le site
 
