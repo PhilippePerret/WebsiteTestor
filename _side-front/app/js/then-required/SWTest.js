@@ -63,13 +63,6 @@ class SWTest {
     }
   }
 
-  afterRunCase(data){
-    console.log('-> SWTest#afterRunCase')
-    this.tcase.evaluate(data)
-    this.runNextCase()
-  }
-
-
   /**
     Ajout du {TCase} +tcase+ à la feuille de tests
   **/

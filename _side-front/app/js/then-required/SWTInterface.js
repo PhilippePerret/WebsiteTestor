@@ -37,7 +37,8 @@ class SWTInterface {
       // Autre message reçu par le site, à traiter
       console.log("[INTERFACE] retourne : ", data)
       // On peut évaluer ou passer à la suite
-      SWTest.get(data.swtest).afterRunCase(data)
+      TCase.get(data.id).afterRun(data)
+      // SWTest.get(data.swtest).afterRunCase(data)
       // this.testor.runNextCase()
     }
   }

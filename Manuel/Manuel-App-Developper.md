@@ -78,7 +78,47 @@ window.addEventListener('message', retour => {
 
 Et il peut l’évaluer.
 
+## Parcours d’une ligne de test
 
+Une « ligne de test » est une ligne qu’on trouve dans une feuille de tests.
+
+Nous suivons ici le « parcours » de quelques lignes.
+
+Le testeur trouve cette ligne dans la feuille de style
+
+`tag("div#mondiv").contains("Mon texte", {online:true})`
+
+ Elle va la mettre dans la *pile d’exécution* de l’instance de la feuille de tests en suivant ce parcours :
+
+- `tag(...)` crée une nouvelle instance `Tag` pour un objet DOM (ici, le div `#mondiv`)
+- on appelle la méthode `exists` de cette instance
+- la méthode `exists` crée un nouveau `TCase` qui est ajouté à la pile d’exécution du SWTest en définissant précisément ses propriétés (id:`<id du TCase>`, context:`"Dom"`, type:'expectation', inverse:false, eval: code à évaluer, expected: true, etc.).
+
+Quand la feuille de tests a été complètement lue, chaque `TCase` de sa *pile d’exécutions* (ses « cases » ) sont exécutés les uns après les autres, successivement, même s’ils sont asynchrone : on attend toujours la fin de l’exécution d’un TCase pour lancer le suivant.
+
+Noter que les données qui seront transmises feront tout le « tour » de l’exécution, en s’alimentant des opérations exécutées.
+
+En l’occurrence, les data du TCase de notre ligne sont envoyé à l’interface site-side (interface côté site, de nom `InterfaceXXX.js`.
+
+* la méthode `<interface>.receiveFromTestor(...)` reçoit les données du TCase
+* Si ces données définissent un `waitFor`, on doit attendre la présence de cet élément pour lancer l’exécution. En l’occcurrence, il est défini pour la méthode `contains`, il faut attendre que le sélecteur soit présent dans la page.
+* la méthode attend que `div#mondiv` se trouve dans la page
+* quand c’est le cas, il évalue le code transmis dans la propriété `eval` par le TCase. En l’occurrence, c’est le code `document.querySelector("div#mondiv").innerHTML` et met le résultat dans la propriété `result` et `evalResult` des data du TCase.
+* si le div n’a pas été trouvé, ou en cas d’une autre erreur, la propriété `error` des datas est défini. Si c’est une erreur système, c’est la propriété `systemError` qui doit être définie.
+* Une fois que c’est fait, `<interface>` se sert de la méthode `sendTestor` pour renvoyer les données au *Testor*.
+
+Les choses se passent ensuite côté *Testor*.
+
+* l’instance interface `SWTInterface` reçoit les données par sa méthode `onMessage(...)`
+* elle récupère le `TCase` de la ligne en se servant de la propriété `id` des données retournées,
+* elle appelle la méthode `afterRun` du TCase en lui transmettant les données de l'exécution,
+* la méthode `<tcase>.afterRun` appelle la méthode `evaluate` du sujet, ici, par exemple l’objet `Tag`. Note : la méthode `evaluate` est en fait une méthode de la classe abstrait `SWTSubject` qui va appeler dans l’objet une méthode propre dont le nom est construit à partir du nom de la méthode (`exists` ici) et le suffixe `Evaluate` et seulement si le type de l’opération est `expectation`.
+* Note : la méthode abstraite `SWTSubject.evaluate` traite le cas où `data.systemError` est définie et donc où une erreur système a été rencontrée avec ce cas.
+* la méthode de l’objet principal, `Tag.existsEvaluate`, évalue le résultat en fonction des données envoyées. Ici, par exemple, c’est la méthode `exists`, il faut voir si `inverse` est vrai dans les propriéts et produire le résultat en fonction de `result`. Ici, `result` est le résultat de l’évaluation de `!!document.queryQuery("div#mondiv")` donc a été mis à `true` si l’élément a été trouvé dans la page.
+* la méthode `evaluate` produit une nouvelle expectation avec le résultat :
+  * si le texte est conforme, elle produit un succès (success) qui est ajouté aux succès du `swtest` de la feuille de test
+  * si le texte n’est pas celui attendu, elle produit un échec (failure) qui est ajouté aux échecs du `swtest` de la feuille de test
+* si l’option `—fail-fast` a été utilisée, les tests s’arrêtent, sinon, on passe à la ligne suivante.
 
 ### Détail des opérations avec les méthodes et objets fournis
 
@@ -168,7 +208,101 @@ Prenons l’exemple sur sujet `db` qui va permettre de travailler avec la base d
    }
    ~~~
 
+   C’est dans cette méthode qu’il faudra définir comment traiter les opérations, les requêtes, etc. Il faut bien penser ici qu’une interface est nécessaire pour savoir comment l’application (le site) traite ses requêtes (identifiants, base, traitement des requêtes). Il faut fournir à l’utilisateur du test la description de la construction de cette interface (ce sera étudié ci-dessous).
+
+5. Il faut définir ensuite à quelles méthodes l’objet `db` (`{SWTDb}`) va réagir. On peut penser à :
+
+   ~~~javascript
+   SWTDb.DATABASE = "mabasededonnees"
+   // Pour définir la base de données
    
+   db("SELECT * FROM matable WHERE id = ?", [1]).contains({col1:"val1", col2: "val2"})
+   // Expectation de contenu
+   
+   db("INSERT INTO matable ...", values).exec()
+   // Opération pour mettre quelque chose
+   
+   db("SELECT * FROM matable LIMIT 10").exec()
+   // Opération qui renvoie un résultat
+   ~~~
+
+   Toutes ces méthodes (`contains`, `exec`) vont devoir être implémentées dans la classe `SWTDb` qui va ressembler maintenant à :
+
+   ~~~javascript
+   class SWTDb extends SWTSubject {
+   
+     // Pour définir de façon global la base de données à utiliser
+     static get DATABASE(){return this._database}
+     static set DATABASE(v){this._database = v}
+     
+     constructor(query){
+       super()
+       this.query = query
+       this.context = 'Db'
+     }
+     
+     /*
+     	Expectation de retour de la requête
+     */
+     contains(expected, options){
+       const tcase = TCase(this, 'expectation', 'query')
+       tcase.set({
+   	      query: this.query
+         , expected: expected
+         , options: options
+       })
+     }
+     
+     /*
+     	Opération
+     */
+     exec(options){
+       const tcase = TCase(this, 'operation', 'query')
+       tcase.set({
+         	query: this.query
+         , options: options
+       })
+     }
+   }
+   ~~~
+
+   
+
+6. **Interface pour l’utilisateur des tests**. Pour pouvoir être utilisable, il faut fournir à l’utilisateur des tests la description de l’interface à construire pour faire un « pont » entre le testeur et le site. Cette interface consiste en la création, sur le site, de la méthode `SWTDbQuery` qui doit recevoir en argument la base, la requête et les valeurs à traiter, et qui doit retourner le résultat renvoyé par la base, comme une liste de rangées :
+
+   ~~~javascript
+   function SWTDbQuery(base, query, values){
+     return new Promise((ok,ko)=>{
+       // ... ici les opérations pour envoyer la requête à la DB
+       // ... et recevoir le résultat
+       ok(retour)
+     })
+   }
+   ~~~
+
+   Pour le moment, on considère les conventions suivantes :
+
+   * la base de donnée est MySQL,
+
+   * les *données de configuration* se trouve sans dans le dossier `./data/secret/mysql.json` et contient une donnée contenant :
+
+     ~~~javascript
+     {
+       "online":{
+         "host": "hôte mysql distant",
+         "username": "..."
+         "password": "..."
+       },
+         
+       "offline":{
+         "host": "hôte mysql local",
+         "username": "...",
+         "password": "..."
+       }
+     }
+     ~~~
+
+     
 
 ## Lancement des tests
 

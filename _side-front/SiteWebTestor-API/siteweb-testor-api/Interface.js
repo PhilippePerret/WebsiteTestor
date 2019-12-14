@@ -107,21 +107,31 @@ class Interface {
           form.querySelector(`#${id}`).value = data.values[id]
         }
         break
+      case 'submit':
+        console.log("* Soumission du formulaire *")
+        var form = this.siteDocument.querySelector(data.subject)
+        var submitButton ;
+        if ( data.submitButton ) {
+          submitButton = form.querySelector(data.submitButton)
+        } else {
+          submitButton = form.querySelector('input[type="submit"]')
+        }
+        submitButton.click()
+        break
     }
 
     this.sendTestor.call(this,data)
   }
 
+  treateDataAsDb(data){
+    console.log("Traitement de l'exécutant comme Db avec les données :", data)
+
+  }
+
   /**
     Méthode qui attend que la balise +tag+ soit contenu dans le site pour
     poursuivre
-
-    ON doit avoir une boucle appelée tous les laps temps
-    this.timerWaitFor = setIntervalle()
   **/
-
-
-
   waitFor(tag){
     const TIMEOUT = 20
     const LAPS    = 500

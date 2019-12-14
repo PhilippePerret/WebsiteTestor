@@ -7,7 +7,7 @@
   *
 
 De manière générale, un {TCase} correspond à une ligne d'une feuille de
-test.
+test, il correspond à une étude de cas particulière.
 *** --------------------------------------------------------------------- */
 class TCase {
 
@@ -48,9 +48,9 @@ class TCase {
     this.id       = this.constructor.newId()
     this.type     = type // 'operation','expectation' ou 'verification'
     this.context  = owner.context // p.e. 'dom' ou 'db'
-    this.swtest = SWTest.current // forcément le courant, à l'instanciation
-    this.testor = this.swtest.testor
-    this.method = method // p.e. 'contains'. Permet d'évalue le cas.
+    this.swtest   = SWTest.current // forcément le courant, à l'instanciation
+    this.testor   = this.swtest.testor
+    this.method   = method // p.e. 'contains'. Permet d'évalue le cas.
     // Dès qu'on instancie un TCase, on l'enregistre dans la pile
     // d'exécution du test.
     SWTest.current.addCase(this)
@@ -64,18 +64,20 @@ class TCase {
     On joue ce cas.
   **/
   run(){
+    console.log("-> <TCase #%d>.run", this.id)
     this.testor.sendToSite(Object.assign(this.code))
   }
 
-  evaluate(data){
-    console.log("Je vais ÉVALUER les données : ", data)
-    if ( data.expectedValue ) {
-      // La valeur attendue doit être égale à la valeur trouvée
-      var ok = data.expectedValue == data.result
-      this.expectation.evaluate(ok)
-    } else if (data.evalMethod) {
-      // Il faut appeler une méthode particulière d'évaluation
-    }
+  /**
+    Méthode appelée une fois que le case a été interprêté côté
+    site. C'est ici que va pouvoir se faire l'évaluation.
+  **/
+  afterRun(data){
+    console.log("-> <TCase #%d>.afterRun", this.id)
+    this.owner.evaluate(data) // modifie data
+    this.expectation.data = data
+    // On demande l'écriture du rapport court
+    this.expectation.writeShortReport()
   }
 
   /**

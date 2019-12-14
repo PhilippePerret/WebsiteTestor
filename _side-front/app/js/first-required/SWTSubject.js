@@ -15,5 +15,31 @@ class SWTSubject {
     this.testor.sendToSite(Object.assign(this.code, {swtest: this.swtest.id}))
   }
 
+  /**
+    Méthode d'évaluation générale commune à tous les sujets
+
+    Elle va appeler la méthode propre d'évaluation du sujet en fonction de
+    la méthode employée.
+    Elle gère aussi et avant le cas où une erreur (de test ou système) a été
+    rencontrée.
+
+  **/
+  evaluate(data){
+    console.log("-> <%s>.evaluate", this.constructor.name, data)
+    if ( data.systemError ) {
+      // <= Une erreur système a été rencontrée
+      // => Il faut l'indiquer et interrompre cette feuille de test
+      console.error("[ERREUR SYSTÈME]", data.systemError)
+    } else if ( data.error ) {
+      // <= Une erreur de test a été rencontrée
+      // => Il faut interrompre cette feuille de tests
+      console.error("[ERREUR TEST]", data.error)
+    } else if (data.type == 'expectation') {
+      var evaluateMethod = `${data.method}Evaluate`
+      this[evaluateMethod](data)
+    } else if ( expected && expected != result ) {
+      console.warn("Le résultat ne correspond pas aux attentes")
+    }
+  }
 
 }

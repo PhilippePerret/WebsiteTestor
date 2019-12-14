@@ -1,0 +1,19 @@
+#report {
+
+}
+#report .report-line {
+  font-family:Arial, sans-serif;
+  font-size:10.4pt;
+}
+
+#report .report-line.success {
+  color:green;
+}
+#report .report-line.failure {
+  color:red;
+  font-weight:bold;
+}
+#report .report-line.pending {
+  color:green;
+  font-weight:bold;
+}

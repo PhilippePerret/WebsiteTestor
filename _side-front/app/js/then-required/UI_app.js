@@ -18,6 +18,11 @@ Object.defineProperties(UI,{
   siteContainer:{get(){return this._sitecontainer || (this._sitecontainer = DGet('#site'))}}
 
   /**
+    La partie pour écrire le rapport
+  **/
+, report:{get(){return this._report || (this._report = DGet('#report'))}}
+
+  /**
     Élément DOM contenant la feuille de test courante
   **/
 , testContainer:{get(){return this._testcontainer || (this._testcontainer = DGet('#test'))}}
