@@ -19,7 +19,7 @@ class Expectation {
     Écriture du rapport court
   **/
   writeShortReport(){
-    UI.report.appendChild(this.reportLine)
+    testor.report(this.message, this.classResult)
   }
 
   /**
@@ -34,13 +34,6 @@ class Expectation {
   get isPending(){return this.data.pending}
 
   get inverse(){return this.data.inverse}
-
-  /**
-    La ligne de rapport à reproduire
-  **/
-  get reportLine(){
-    return DCreate('DIV', {class:`report-line ${this.classResult}`, inner:this.message})
-  }
 
   /**
     La classe CSS en fonction du résultat

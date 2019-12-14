@@ -5,7 +5,6 @@
   *   Le testeur de site en cours
 *** --------------------------------------------------------------------- */
 
-
 class SWTestor {
   /** ---------------------------------------------------------------------
     *
@@ -77,6 +76,7 @@ class SWTestor {
     // On charge toutes les feuilles de test
     // TODO Plus tard, les prendre sur le site, dans le dossier siteweb-testor-api
     // TODO Pour le moment, on les prend dans le dossier swtTests ici
+
     var testFiles = fs.readdirSync("./swtTests",'utf8')
     console.log("testFiles", testFiles)
 
@@ -102,6 +102,8 @@ class SWTestor {
     // Ici, 'tag(...)' pourrait appeler une méthode qui va chercher la balise
     // correspondante.
 
+    this.report("Lancement des tests\n", 'notice', {withTime:true})
+
     this.runNextTest()
   }
 
@@ -116,12 +118,12 @@ class SWTestor {
     } else {
       // <= Il n'y a plus de feuille de test à jouer
       // => On peut afficher le rapport
-      this.displayReport()
+      this.endTests()
     }
   }
 
-  displayReport(){
-    console.log("= RAPPORT DE FIN DES TESTS =")
+  endTests(){
+    this.report("\nFin des tests", 'notice', {withTime:true})
   }
 
   /** ---------------------------------------------------------------------
@@ -170,14 +172,6 @@ class SWTestor {
   }
 
   /**
-    Raccourci pour envoyer un message sur le site. Note : ça ne fait que
-    l'afficher en console.
-  **/
-  sendMessage(msg){
-    this.interface.send({message: msg})
-  }
-
-  /**
     Chargement du site dans la page
 
     +url+ permet de définir une autre path que celle du site, avec des routes
@@ -197,6 +191,10 @@ class SWTestor {
     return inter
   }
 
+  report(msg, type, options){
+    this._report || (this._report = new SWTReport(this))
+    this._report.write(msg, type, options)
+  }
   // get container(){
   //   return this._container || (this._container = UI.siteContainer)
   // }
@@ -331,3 +329,7 @@ class SWTestor {
   }
 
 } //SWTestor
+
+Object.defineProperties(window,{
+  testor:{get(){return SWTestor.current}}
+})

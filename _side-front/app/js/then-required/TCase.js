@@ -65,6 +65,7 @@ class TCase {
   **/
   run(){
     console.log("-> <TCase #%d>.run", this.id)
+    // TODO Indiquer dans le rapport à quelle ligne se trouve ce case
     this.testor.sendToSite(Object.assign(this.code))
   }
 

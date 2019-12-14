@@ -6,6 +6,10 @@
   font-size:10.4pt;
 }
 
+#report .report-line.notice {
+  color:blue;
+}
+
 #report .report-line.success {
   color:green;
 }

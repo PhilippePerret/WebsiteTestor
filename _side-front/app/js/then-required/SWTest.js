@@ -48,6 +48,7 @@ class SWTest {
     console.log("-> SWTest#run")
     // TODO Une introduction  dans le rapport, permettant de dire d'où on vient
     // le temps, etc.
+    // TODO Indiquer la provenance du fichier
     this.runNextCase()
   }
 

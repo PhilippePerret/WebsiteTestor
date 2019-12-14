@@ -5,6 +5,14 @@ function raise(msgErr) {
   throw new Error(msgErr)
 }
 
+/**
+  Retourne la date et l'heure, très précise
+**/
+function now(){
+  let d = new Date()
+  return `${d.getDate()} ${d.getMonth()+1} ${d.getFullYear()} - ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}:${d.getMilliseconds()}`
+}
+
 function humanDateFor(date){
   if ( ! date ) return ''
   const hd = date instanceof Date ? date : new Date(date)
