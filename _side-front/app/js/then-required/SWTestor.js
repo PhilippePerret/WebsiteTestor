@@ -214,7 +214,7 @@ class SWTestor {
     const srcFolder = path.join('.','_side-front','SiteWebTestor-API','siteweb-testor-api')
     const dstFolder = path.join(this.folder, 'siteweb-testor-api')
     // Pour le moment, on recrée à chaque fois
-    fs.existsSync(dstFolder) && exec(`rm -rf "${dstFolder}"`)
+    fs.existsSync(dstFolder) && execSync(`rm -rf "${dstFolder}"`)
     fs.existsSync(dstFolder) || fs.mkdirSync(dstFolder)
 
     // Par défaut, on considère que le fichier main.html est à jour
@@ -267,7 +267,7 @@ class SWTestor {
     const srcFolder = path.join('.','_side-front','SiteWebTestor-API','siteweb-testor-api')
     const dstFolder = path.join(this.folder, 'siteweb-testor-api')
     // Pour le moment, on recrée à chaque fois
-    fs.existsSync(dstFolder) && exec.sync(`rm -rf "${dstFolder}"`)
+    fs.existsSync(dstFolder) && execSync(`rm -rf "${dstFolder}"`)
     fs.existsSync(dstFolder) || fs.mkdirSync(dstFolder)
 
     // Par défaut, on considère que le fichier main.html est à jour
