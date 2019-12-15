@@ -1,4 +1,4 @@
-* erreur système
+* UI régler la hauteur du rapport au maximum
 * le numéro de ligne de chaque case (try)
 * afficher le nom du fichier traité (option)
 * réglage des options

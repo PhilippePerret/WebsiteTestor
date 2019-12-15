@@ -19,21 +19,13 @@ class SWTestor {
   static open(url, dstFolder){
     this.current = new SWTestor(url, dstFolder)
 
-    // TODO Pour l'application finale, utiliser la première (qui ne recrée
-    // pas chaque fois tout le dossier)
+    // TODO Pour l'application finale, utiliser la première méthode (qui ne
+    // recrée pas chaque fois tout le dossier sur le site)
     // this.current.prepareForTests()
     this.current.prepareForTestsModeDev()
 
     this.current.load()
   }
-
-  // /**
-  //   Ouvre l'url dans la fenêtre du site (OLD VERSION)
-  // **/
-  // static open(url, params){
-  //   this.current = new Site(url, params)
-  //   this.current.load()
-  // }
 
   static get current(){return this._current}
   static set current(v){
@@ -73,8 +65,9 @@ class SWTestor {
     console.log("testFiles", testFiles)
 
     const testsFolder = '../swtTests'
-    testFiles.forEach( p => {
-      // Il faut faire un nouveau SWTest
+    for(var itest = 0, len = testFiles.length; itest < len; ++itest){
+      var p = testFiles[itest]
+      // Création d'un nouveau SWTest
       var ptest = `${testsFolder}/${p}`
       SWTest.current = new SWTest(this, ptest)
       try {
@@ -82,9 +75,13 @@ class SWTestor {
       } catch (e) {
         // On passe ici en cas d'erreur d'écriture dans le fichier
         this.report(`ERREUR D'ÉCRITURE DANS LE FICHIER '${ptest}' à la ligne ${e.lineNumber} : ${e.message}\n${e.stack}`, 'failure')
-        if ( this.config.get('failFast') ) return
+        if ( this.config.get('failFast') ){
+          console.log("Failfast est activé, on s'arrête tout de suite")
+          this.report('FAIL-FAST ACTIVÉ', 'failure', {before:"\n"})
+          return this.endTests()
+        }
       }
-    })
+    }
 
     this.startTests()
   }
@@ -105,11 +102,11 @@ class SWTestor {
   }
 
   startTests(){
-    this.report("Lancement des tests\n", 'notice', {withTime:true})
+    this.report("Lancement des tests", 'notice', {withTime:true, after:"\n\n"})
     this.runNextTest()
   }
   endTests(){
-    this.report("\nFin des tests", 'notice', {withTime:true})
+    this.report("Fin des tests", 'notice', {withTime:true, before:"\n\n"})
   }
 
 
