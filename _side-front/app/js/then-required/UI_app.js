@@ -6,7 +6,9 @@ Object.assign(UI,{
     const my = this
         , hwindow = this.UI_HEIGHT
         , hfooter = UI.footer.offsetHeight
-        , innerHeight = `${hwindow - (hfooter + 100)}px`
+        , innerHeight = `${hwindow - (hfooter + 20)}px`
+
+    this.report.style.height = innerHeight
   }
 
 })

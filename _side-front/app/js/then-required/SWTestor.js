@@ -70,13 +70,12 @@ class SWTestor {
       // Création d'un nouveau SWTest
       var ptest = `${testsFolder}/${p}`
       SWTest.current = new SWTest(this, ptest)
-      try {
-        require(ptest)
-      } catch (e) {
+      try { require(ptest) }
+      catch (e) {
         // On passe ici en cas d'erreur d'écriture dans le fichier
-        this.report(`ERREUR D'ÉCRITURE DANS LE FICHIER '${ptest}' à la ligne ${e.lineNumber} : ${e.message}\n${e.stack}`, 'failure')
+        this.report(`ERREUR D'ÉCRITURE DANS LE FICHIER '${ptest}' à la ligne ${e.lineNumber} : ${e.message}\n${e.stack}`, 'failure', {raw:true})
         if ( this.config.get('failFast') ){
-          console.log("Failfast est activé, on s'arrête tout de suite")
+          // console.log("Failfast est activé, on s'arrête tout de suite")
           this.report('FAIL-FAST ACTIVÉ', 'failure', {before:"\n"})
           return this.endTests()
         }

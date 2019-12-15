@@ -36,7 +36,9 @@ class SWTReport {
     msg = `--- ${msg}`
     if ( options.before ) msg = `${options.before}${msg}`
     if ( options.after )  msg = `${msg}${options.after}`
-    msg = msg.replace(/\r?\n/g,'<br><br>')
+    if ( ! options.raw ) {
+      msg = msg.replace(/\r?\n/g,'<br><br>')
+    }
     return DCreate('DIV', {class:css.join(' '), inner:msg})
   }
 
