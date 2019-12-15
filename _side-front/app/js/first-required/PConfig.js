@@ -20,6 +20,22 @@ const APP_DATA_CONFIG = {
     , type: 'boolean'
     , value: true
   }
+, folder:{
+      hname: "Dossier local"
+    , type: 'string'
+    , value: null
+  }
+, url_offline:{
+      hname: "URL locale"
+    , type: 'string'
+    , value: null
+  }
+, url_online:{
+      hname: "URL distante"
+    , type: 'string'
+    , value: null
+  }
+
 }
 
 if ('undefined' == typeof(window.DATA_MINI_AIDE)){window.DATA_MINI_AIDE = {}}
@@ -35,6 +51,18 @@ Object.assign(DATA_MINI_AIDE,{
 , showFileTestPath:{
     title:'Affichage du chemin'
   , content: "Si cette option est activée, le chemin relatif au fichier test est affiché dans le rapport de test."
+, folder:{
+    title:'Dossier local'
+  , content: "Dossier local contenant le site"
+  }
+, url_offline:{
+    title:'URL locale'
+  , content: "URL à utiliser pour regagner le site local."
+  }
+, url_online:{
+    title:'URL distante'
+  , content: "URL à utiliser pour regagner le site distant, sur internet."
+  }
 }
 
 })

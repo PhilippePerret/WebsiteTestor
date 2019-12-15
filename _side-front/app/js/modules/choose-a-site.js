@@ -46,7 +46,7 @@ class ChooserSite {
   onCharge(){
     console.log("-> onCharge")
     console.log("(this.url, this.path)", this.url, this.path)
-    this.onEnd({siteUrl:this.url, sitePath:this.path})
+    this.onEnd({siteUrl:this.url, sitePath:this.path, siteUrlOnline:this.url_online})
     this.remove()
   }
   onCancel(){
@@ -62,6 +62,9 @@ class ChooserSite {
     var divUrl = DCreate('DIV',{id:'div-site-chooser-url', style:"margin-top:1em;", inner:[
       DCreate('input',{type:'text',id:'chooser-site-url',placeholder:"http://url/du/site.net",style:"width:380px;font-size:inherit;"})
     ]})
+    var divUrlOnline = DCreate('DIV',{id:'div-site-chooser-url-online', style:"margin-top:1em;", inner:[
+      DCreate('input',{type:'text',id:'chooser-site-url-online',placeholder:"http://www.url/du/site.net",style:"width:380px;font-size:inherit;"})
+    ]})
     var divSitePath = DCreate('DIV',{id:'div-site-chooser-path', style:"margin-top:0.5em;", inner:[
         DCreate('input',{type:'text',id:'chooser-site-path',placeholder:"(à partir du dossier Sites)",style:"width:320px;font-size:inherit;"})
       , DCreate('button',{type:'button',id:'chooser-site-btn-choose-folder', inner:"Choisir…"})
@@ -74,13 +77,17 @@ class ChooserSite {
       id:'site-chooser'
     , style:"position:fixed;background:white;padding:1em 2em 2em;top:0;left:10px;width:400px;z-index:100;border:1px;border-radius:0;box-shadow:10px 10px 10px #AAA;"
     , inner:[
-        divTitre, divSitePath, divUrl, divButtons
+        divTitre, divSitePath, divUrl, divUrlOnline, divButtons
     ]})
   }
 
   get url(){
     return this._url || (this._url = nullIfEmpty(DGet('#chooser-site-url',this.div).value))
   }
+  get url_online(){
+    return this._urlonline || (this._urlonline = nullIfEmpty(DGet('#chooser-site-url-online',this.div).value))
+  }
+
   get path(){
     return this._path || (this._path = nullIfEmpty(DGet('#chooser-site-path',this.div).value))
   }

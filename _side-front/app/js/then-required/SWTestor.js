@@ -15,13 +15,24 @@ class SWTestor {
   /**
     Ouvre l'url dans la fenêtre du site
     (version avec interface)
+
+    On passe ici seulement quand on a choisi un site.
   **/
-  static open({siteUrl, sitePath}){
+  static open({siteUrl, sitePath, siteUrlOnline}){
     if ( !siteUrl || !sitePath) return // non choix d'un site
     if ( !sitePath.startsWith('/')){
       sitePath = path.join(App.homeDirectory,'Sites', sitePath)
     }
-    this.current = new SWTestor(siteUrl, sitePath)
+    this.current = new SWTestor(sitePath)
+
+    // On définit les données dans le fichier de configuration du site,
+    // pour pouvoir les récupérer une prochaine fois
+    this.current.config.set({
+      'folder': sitePath
+      , url_offline: siteUrl
+      , url_online:  siteUrlOnline
+    })
+
     if ( !this.current.isValid() ){
       this._current = null
       return
@@ -32,15 +43,11 @@ class SWTestor {
     this.current.checkIfHasTests()
 
     // On mémorise ce site comme dernier site testé
-    App.prefs.set('lastSiteChecked',`${this.current.websiteFolder}::${this.current.url}`)
+    // Note : maintenant il suffit de mémoriser l'adresse du dossier local,
+    // pour pouvoir récupérer les url
+    App.prefs.set('lastSiteChecked',`${this.current.websiteFolder}`)
 
-
-    // TODO Pour l'application finale, utiliser la première méthode (qui ne
-    // recrée pas chaque fois tout le dossier sur le site)
-    // this.current.prepareForTests()
-    this.current.prepareForTestsModeDev()
-
-    this.current.load()
+    this.current.prepareAndOpen()
   }
 
   /**
@@ -72,14 +79,31 @@ class SWTestor {
     param {String} folder Dossier physique distant ou local contenant l'index
                           du site.
   **/
-  constructor(url, folder){
-    this.url    = url
+  constructor(folder){
     this.websiteFolder = folder
     // Sera mis à true par SWTInterface lorsque l'url aura été chargée
     // correctement. Noter cependant que ça n'est plus important maintenant
     // puisque les tests attendent de trouver leurs éléments avant d'être
     // joués (les TCases)
     this.ready = false
+  }
+
+  get url(){
+    return this._url || (this._url = this.config.get('url_offline'))
+  }
+  get url_online(){
+    return this._urlonline || (this._urlonline = this.config.get('url_online'))
+  }
+
+  /**
+    Prépare le dossier du site et charge le site
+  **/
+  prepareAndOpen(){
+    // TODO Pour l'application finale, utiliser la première méthode (qui ne
+    // recrée pas chaque fois tout le dossier sur le site)
+    // this.prepareForTests()
+    this.prepareForTestsModeDev()
+    this.load()
   }
 
   /**

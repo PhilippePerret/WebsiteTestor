@@ -50,9 +50,24 @@ class PConfig {
     Définit une configuration (et l'enregistre tout de suite)
   **/
   set(configId, value) {
-    if ( this.get(configId) != value ) {
-      Object.assign(this.data, {[configId]: value})
-      this.save({[configId]: value})
+    var newData
+    if ( 'string' === typeof configId ) {
+      newData = {[configId]: value}
+    } else {
+      newData = configId
+    }
+    // On vérifie qu'il y ait bien de nouvelles valeurs
+    var hasNewValue = false
+    for(var configId in newData ){
+      if (newData[configId] != this.get(configId)) {
+        hasNewValue = true
+        break;
+      }
+    }
+    // S'il y a de nouvelles valeurs, on enregistre
+    if ( hasNewValue ) {
+      Object.assign(this.data, newData)
+      this.save(newData)
     }
   }
 

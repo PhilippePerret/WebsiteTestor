@@ -22,10 +22,10 @@ Object.assign(App,{
     // await SWTestor.open(dstURI, dstFolder)
 
     // Y a-t-il un dernier site testé ?
-    var lastSite = this.prefs.get('lastSiteChecked')
-    if ( lastSite ) {
-      var [pth,url] = lastSite.split('::')
-      SWTestor.open({sitePath:nullIfEmpty(pth), siteUrl:nullIfEmpty(url)})
+    var lastSiteFolder = this.prefs.get('lastSiteChecked')
+    if ( lastSiteFolder ) {
+      SWTestor.current = new SWTestor(lastSiteFolder)
+      SWTestor.current.prepareAndOpen()
     }
 
   }
