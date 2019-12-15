@@ -37,7 +37,6 @@ class Tag extends SWTSubject {
     const tcase = new TCase(this, type, 'exists')
     tcase.set({
         subject: this.selector
-      , type: type
       , eval:`!!document.querySelector("${this.selector}")`
       , waitFor: this.selector
       , expected: true
@@ -66,7 +65,6 @@ class Tag extends SWTSubject {
     const tcase = new TCase(this, type, 'contains')
     tcase.set({
         subject: this.selector
-      , type: type
       , eval:`document.querySelector("${this.selector}").innerHTML`
       , waitFor: this.selector
       , expected: expected
@@ -86,6 +84,7 @@ class Tag extends SWTSubject {
   }
   containsEvaluate(data){
     data.success = !data.inverse == (data.expected == data.result)
+    console.log("Data À LA FIN APRÈS ÉVALUATION : ", data)
   }
 
   /**

@@ -36,8 +36,9 @@ class SWTSubject {
       console.error("[ERREUR TEST]", data.error)
     } else if (data.type == 'expectation') {
       var evaluateMethod = `${data.method}Evaluate`
-      this[evaluateMethod](data)
-    } else if ( expected && expected != result ) {
+      console.log("Expectation, méthode d'évaluation :", evaluateMethod)
+      this[evaluateMethod].call(this, data)
+    } else if ( data.expected && data.expected != data.result ) {
       console.warn("Le résultat ne correspond pas aux attentes")
     }
   }

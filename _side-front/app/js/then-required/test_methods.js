@@ -7,8 +7,13 @@
 
 *** --------------------------------------------------------------------- */
 
-function visit(route, options) {
+function site(options){
+  return new SiteSubject(options)
+}
 
+// Raccourci
+function visit(route, options){
+  return site(options).visit(route, options)
 }
 
 function tag(selector){

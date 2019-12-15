@@ -93,8 +93,7 @@ class TCase {
     On joue ce cas.
   **/
   run(){
-    console.log("-> <TCase #%d>.run", this.id)
-    // TODO Indiquer dans le rapport à quelle ligne se trouve ce case
+    console.log("-> <TCase #%d>.run", this.id, this.code)
     this.testor.sendToSite(Object.assign(this.code))
   }
 
@@ -126,6 +125,7 @@ class TCase {
   get code(){
     var c = {
         id:       this.id
+      , type:     this.type
       , swtest:   this.swtest.id
       , context:  this.context
       , method:   this.method

@@ -104,14 +104,14 @@ En l’occurrence, les data du TCase de notre ligne sont envoyé à l’interfac
 * Si ces données définissent un `waitFor`, on doit attendre la présence de cet élément pour lancer l’exécution. En l’occcurrence, il est défini pour la méthode `contains`, il faut attendre que le sélecteur soit présent dans la page.
 * la méthode attend que `div#mondiv` se trouve dans la page
 * quand c’est le cas, il évalue le code transmis dans la propriété `eval` par le TCase. En l’occurrence, c’est le code `document.querySelector("div#mondiv").innerHTML` et met le résultat dans la propriété `result` et `evalResult` des data du TCase.
-* si le div n’a pas été trouvé, ou en cas d’une autre erreur, la propriété `error` des datas est défini. Si c’est une erreur système, c’est la propriété `systemError` qui doit être définie.
+* si le div n’a pas été trouvé, ou en cas d’une autre erreur, la propriété `testError` des datas est défini. Si c’est une erreur système, c’est la propriété `systemError` qui doit être définie.
 * Une fois que c’est fait, `<interface>` se sert de la méthode `sendTestor` pour renvoyer les données au *Testor*.
 
 Les choses se passent ensuite côté *Testor*.
 
 * l’instance interface `SWTInterface` reçoit les données par sa méthode `onMessage(...)`
 
-* elle récupère le `TCase` de la ligne en se servant de la propriété `id` des données retournées,
+* elle récupère le `TCase` de la ligne en se servant de la propriété `id` des données retournées (rappel : les données — les `data` — font tout le « tour » des tests, partant du testor pour aller vers le site et revenant vers le testor avec les résultats obtenus),
 
 * elle appelle la méthode `afterRun` du TCase en lui transmettant les données de l'exécution,
 
@@ -121,17 +121,16 @@ Les choses se passent ensuite côté *Testor*.
 
 * la méthode de l’objet principal, `Tag.existsEvaluate`, évalue le résultat en fonction des données envoyées. Ici, par exemple, c’est la méthode `exists`, il faut voir si `inverse` est vrai dans les propriéts et produire le résultat en fonction de `result`. Ici, `result` est le résultat de l’évaluation de `!!document.queryQuery("div#mondiv")` donc a été mis à `true` si l’élément a été trouvé dans la page.
 
-* Note : en fait, chaque méthode d’objet (par exemple `exists`) fonctionne sur la base de trois méthodes :
-
-  * `<method>` qui est la méthode qui est appelée par la feuille de test, sur l’objet,
-  * `<method>Messages` qui retourne les quatre messages possibles, `success`, `failure`, `successInverse` et `failureInverse` qui serviront pour le rapport,
-  * `<method>Evaluate(data)` qui permet d’évaluer le résultat obtenu côté site et, notamment, définit la valeur de `data.success`, true si c’est un succès (tenant compte de l’inversion possible par `not`).
+  >  Note : en fait, chaque méthode d’objet (par exemple `exists`) fonctionne sur la base de trois méthodes :
+  > * `<method>` qui est la méthode qui est appelée par la feuille de test, sur l’objet,
+  > * `<method>Messages` qui retourne les quatre messages possibles, `success`, `failure`, `successInverse` et `failureInverse` qui serviront pour le rapport,
+  > * `<method>Evaluate(data)` qui permet d’évaluer le résultat obtenu côté site et, notamment, définit la valeur de `data.success`, true si c’est un succès (tenant compte de l’inversion possible par `not`).
 
   Donc, ici, on trouve les méthodes et propriétés `Tag.exists()`, `Tag.existsMessages(data)` et `Tag.existsEvaluate(data)`.
 
 * la méthode `TCase.afterRun` définit les `data` de l’expectation qui lui est associée,
 
-* puis elle demande l’affichage du rapport en appelant la méthode `Expectation#writeShortReport()
+* puis elle demande l’affichage du rapport en « exécutant l’expectation », c’est-à-dire en appelant la méthode `Expectation#execute()` qui va incrémenter le nombre de succès, d’échecs ou de pending et appeler la méthode `Expectation#writeShortReport()` pour faire écrire le rapport.
 
 * la méthode `<tcase>.expectation.writeShortReport()` écrit sa ligne `reportLine` dans l’interface. Les méthodes de la classe `Expectation` n’ont pas à être modifiées.
 
@@ -140,9 +139,11 @@ Les choses se passent ensuite côté *Testor*.
   * si une erreur système est survenue, et que l’option `--fail-fast` est activée, il s'arrête
   * si une erreur système est survenue, sans option `—fail-fast`, il passe à la feuille de tests suivant,
   * pareil avec les erreurs de test
-  * sinon, il passe normalement à la prochaine ligne de test, le prochain `TCase`.
+  * sinon, il passe normalement à la prochaine ligne de test, le prochain `TCase`, ou alors, si on était sur le dernier cas, on passe à la feuille de tests suivante, si c’était la dernière feuille, on passe à la fin.
 
 ### Détail des opérations avec les méthodes et objets fournis
+
+> Je ne suis pas sûr que cette partie soit conforme à ce qui a été déterminé avec la partie précédente.
 
 1. On demande l’ouverture d’un site avec `SWTestor.open(url, path)`
 
@@ -335,6 +336,74 @@ Rappel : il y a un seul `<testor>` pour une session de test. Ce testor se trouve
 1. La méthode commence par relever la liste de tous les fichiers tests du dossier test du site. Ce dossier doit se trouver à la racine du site, avec pour nom `./swtests/`.
 2. De chacun de ces fichiers, le Testor fabrique une instance `SWTest` qui sera considérée comme l’instance de la feuille de test. C’est cette instance qui, plus tard, va jouer chacun des cas empilés dans sa pile d’exécution. Cette instance est mise en instance courante (`SWTest.current`) pour la suite du traitement (pour que le require sache où envoyer les évaluations et les opérations).
 3. Après avoir fabriqué l’instance `SWTest`, le Testor `require` le fichier, qui est du javascript « normal », contenant les évaluations et les opérations. Une évaluation est par exemple du type : `tag("#mondiv").contains("ce texte »)`. Cette évaluation (ou cette opération) crée une instance `{TCase}` qui sera ajoutée à la pile d’exécution (les `cases`) de `SWTest.current`. Pour voir comment la méthode `tag` crée une instance `{TCase}`, cf. [Création des `TCase`s](#creationtcases).
+
+
+
+<a name="creationSujet"></a>
+
+## Création d’un nouveau sujet
+
+Pour le moment, on trouve par exemple les sujets `Tag`, qui permet d’interagir avec le contenu de la page, `Site` qui permet d’interagir et de tester le site en tant qu’objet internet ou encore `Db` qui permet de tester et d’interagir avec la base de données.
+
+Voici les étapes pour créer un nouveau sujet :
+
+* Définir un nom unique et parlant. Par exemple `Str` pour tester les `String`.
+
+* Créer le fichier correspondant dans le dossier `app/js/then-required/testClasses/` (p.e. `Str.js`).
+
+* Dans ce fichier, initier la classe en héritant de `SWTSubject` :
+
+  ~~~javascript
+  class Str extends SWTSubject {
+    constructor(monTexte){
+      super()
+      this.context = 'String'
+      this.subject = monTexte
+    }
+  }
+  ~~~
+
+  Ne pas oublier de définir le `context`, unique.
+
+* On peut ensuite définir une méthode de test, qui pourrait donc être utilisée dans les feuilles de tests par `Str("mon String").mange(<options>)`
+
+  ~~~javascript
+  class Str extends SWTSubject {
+    // ...
+    
+    mange(options){
+      var type = 'expectation'
+      var tcase = new TCase(this, type, 'mange')
+      tcase.set({
+        // On définit ici tout ce qui va servir pour l'évaluation
+        // Par exemple :
+        subject: this.subject
+      , waitFor: "le tag à attendre if any"   
+  	  , eval: "code à évaluer"
+      , expected: "la valeur attendue" 
+      , options: options
+      , inverse: this.inverse // si on peut utiliser 'not'
+        // etc.
+      })
+    }
+  }
+  ~~~
+
+  
+
+* Définir la méthode `treateDataAs<context>` dans le fichier `./_side-front/SiteWebTestor-API/siteweb-testor-api/Interface.js`. C'est cette méthode qui va traiter les méthodes de l’objet côté site.
+
+  ~~~javascript
+  treateDataAsString(data/*data reçues du tcase*/){
+    switch(data.action /* par exemple */){
+       ///...
+    }
+    // Pour retourner les données au testor
+    this.sendTestor.call(this,data)
+  }
+  ~~~
+
+  
 
 <a name="creationtcases"></a>
 

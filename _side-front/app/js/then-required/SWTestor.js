@@ -57,7 +57,6 @@ class SWTestor {
   static get current(){return this._current}
   static set current(v){
     this._current = v
-    window.site = v
   }
 
   /** ---------------------------------------------------------------------

@@ -30,19 +30,18 @@ class Interface {
   receiveFromTestor(ev){
     const data = ev.data
     this.currentData = data
-    console.log("Données reçues par Interface.js :", data)
+    // console.log("Données reçues par Interface.js :", data)
 
     // Si la propriété waitFor est définie dans les données, il
     // faut attendre la présence de cet élément avant d'exécuter le code
     // Si l'élément n'est pas trouvé après un timeout, on considère que le
     // cas est un échec
     if (data.waitFor) {
-      console.log("Je dois attendre sur l'élément '%s'", data.waitFor)
       this.waitFor(data.waitFor)
         .then(this.treateData.bind(this, data))
         .catch(this.onErrorWaitFor.bind(this))
     } else {
-      this.treateData.bind(this, data)
+      this.treateData.call(this, data)
     }
   }
 
@@ -103,6 +102,20 @@ class Interface {
     *   Méthodes de traitement par contexte
     *
   *** --------------------------------------------------------------------- */
+  /**
+    Pour le contexte 'Site'
+    Initiée pour la commande test 'visit'
+  **/
+  treateDataAsSite(data){
+    console.log("-> treateDataAsSite (data=", data)
+    switch(data.method){
+      case 'visit':
+        document.querySelector('#site').src = `../${data.route}`
+        break;
+    }
+    this.sendTestor.call(this,data)
+  }
+
   treateDataAsDom(data){
 
     console.log("Traitement de l'exécutant comme Dom avec les données :", data)

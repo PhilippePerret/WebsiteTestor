@@ -21,14 +21,20 @@ class Expectation {
       - on incrémente le nombre de succès ou d'échec
   **/
   execute(){
-    if ( this.isSuccess ) {
-      ++ testor.successCount
-    } else if ( this.isFailure ) {
-      ++ testor.failureCount
-    } else {
-      ++ testor.pendingCount
+    if ( this.tcase.type == 'expectation' ) {
+      if ( this.isSuccess ) {
+        ++ testor.successCount
+      } else if ( this.isFailure ) {
+        ++ testor.failureCount
+      } else {
+        ++ testor.pendingCount
+      }
     }
-    this.writeShortReport()
+    if ( this.tcase.type == 'expectation' || this.tcase.error ) {
+      // On écrit un message de rapport que si c'est une attente de résultat
+      // ou s'il y a eu une erreur
+      this.writeShortReport()
+    }
   }
   /**
     Écriture du rapport court

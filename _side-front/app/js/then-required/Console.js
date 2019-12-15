@@ -6,7 +6,7 @@
   * Gestion du textarea qui contient le code
   *
 *** --------------------------------------------------------------------- */
-class TestCode {
+class Console {
   static init(){
     this.onKeyPress = this.onKeyPress.bind(this)
     this.observe()
@@ -17,7 +17,7 @@ class TestCode {
   static onKeyPress(ev){
     // console.log("-> onKeyPress", ev, ev.key, ev.altKey)
     if (ev.key == 'Enter' && ev.altKey) {
-      new TestCode().evaluate()
+      new Console().evaluate()
       // TODO 2valuation du code
       return stopEvent(ev)
     }
