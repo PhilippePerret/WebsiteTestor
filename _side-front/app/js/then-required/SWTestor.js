@@ -27,8 +27,13 @@ class SWTestor {
       return
     }
 
+    // Si ce site ne possède pas de dossier test, on lui propose d'en
+    // créer un premier
+    this.current.checkIfHasTests()
+
     // On mémorise ce site comme dernier site testé
-    
+    App.prefs.set('lastSiteChecked',`${this.current.sitewebFolder}::${this.current.url}`)
+
 
     // TODO Pour l'application finale, utiliser la première méthode (qui ne
     // recrée pas chaque fois tout le dossier sur le site)
@@ -71,6 +76,11 @@ class SWTestor {
   constructor(url, folder){
     this.url    = url
     this.sitewebFolder = folder
+    // Sera mis à true par SWTInterface lorsque l'url aura été chargée
+    // correctement. Noter cependant que ça n'est plus important maintenant
+    // puisque les tests attendent de trouver leurs éléments avant d'être
+    // joués (les TCases)
+    this.ready = false
   }
 
   /**
@@ -108,11 +118,10 @@ class SWTestor {
     var testFiles = fs.readdirSync("./swtTests",'utf8')
     console.log("testFiles", testFiles)
 
-    const testsFolder = '../swtTests'
     for(var itest = 0, len = testFiles.length; itest < len; ++itest){
       var p = testFiles[itest]
       // Création d'un nouveau SWTest
-      var ptest = `${testsFolder}/${p}`
+      var ptest = `${this.testFilesFolder}/${p}`
       SWTest.current = new SWTest(this, ptest)
       try { require(ptest) }
       catch (e) {
@@ -143,6 +152,7 @@ class SWTestor {
 
   runNextTest(){
     console.log("-> runNextTest")
+    throw new Error("Pour voir d'où vient l'appel")
     var curTest = SWTest.items.shift()
     if (curTest) {
       // <= il y a encore des feuilles de test à jouer
@@ -209,6 +219,17 @@ class SWTestor {
   //   return this._container || (this._container = UI.siteContainer)
   // }
 
+  /**
+    Méthode qui vérifie si le dossier des tests existe et propose d'en
+    construire un, avec un premier test, le cas échéant
+  **/
+  async checkIfHasTests(){
+    if ( fs.existsSync(this.testFilesFolder) ) return
+    let res = await confirmer("Le site choisi ne contient pas de tests. Dois-je les initier ? (fabriquer le dossier et une première feuille exemple)")
+    if ( res ) {
+      console.log("Je vais construire un premier test.")
+    }
+  }
   /**
     Préparation du dossier pour le site en mode développement
     En mode normal, on ne reconstruit le dossier que si des fichiers ont
@@ -336,6 +357,16 @@ class SWTestor {
     let csssCode = csss.map(nfile => `<link rel="stylesheet" href="${nfile}">`).join("\n")
     code = code.replace(/___CSSS___/g, csssCode)
     fs.writeFileSync(dst,code,'utf8')
+  }
+
+  /**
+    Dossier du site contenant les tests
+    -----------------------------------
+    Attention : ce dossier n'est pas à confondre avec le dossier
+    'siteweb-testor-api' qui contient les fichiers utiles aux tests
+  **/
+  get testFilesFolder(){
+    return path.join(this.sitewebFolder, 'swtTests')
   }
 
 } //SWTestor

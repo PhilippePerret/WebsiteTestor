@@ -25,6 +25,7 @@ Object.defineProperties(App,{
       this._homedirectory = require('os').homedir();
     }return this._homedirectory
   }}
+, prefs:{get(){return Prefs}}
 , modulesFolder:{get(){
     return this._modulesfolder || (this._modulesfolder = path.join(app.getAppPath(),'_side-front','app','js','modules'))
   }}

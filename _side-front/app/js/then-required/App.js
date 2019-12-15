@@ -9,7 +9,6 @@ window.name = "Mon application testeur";
 Object.assign(App,{
 
   async onInit(){
-    TestCode.init()
 
     // Placer là où ça doit être TODO
     UI.interface = document.getElementById('interface').contentWindow;
@@ -21,6 +20,13 @@ Object.assign(App,{
     // const dstURI    = 'http://localhost/AlwaysData/Icare_AD_2018/'
     // const dstFolder = path.join(App.homeDirectory,'Sites','AlwaysData','Icare_AD_2018')
     // await SWTestor.open(dstURI, dstFolder)
+
+    // Y a-t-il un dernier site testé ?
+    var lastSite = this.prefs.get('lastSiteChecked')
+    if ( lastSite ) {
+      var [pth,url] = lastSite.split('::')
+      SWTestor.open({sitePath:nullIfEmpty(pth), siteUrl:nullIfEmpty(url)})
+    }
 
   }
 

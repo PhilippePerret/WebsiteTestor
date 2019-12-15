@@ -32,7 +32,7 @@ class SWTInterface {
     const data = ev.data
     console.log("Message reçu par SWInterface :", data)
     if ( ev.data.firstReady ) {
-      this.testor.start()
+      this.testor.ready = true
     } else {
       // Autre message reçu par le site, à traiter
       console.log("[INTERFACE] retourne : ", data)
