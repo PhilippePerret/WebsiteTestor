@@ -372,8 +372,7 @@ Voici les étapes pour créer un nouveau sujet :
     // ...
     
     mange(options){
-      var type = 'expectation'
-      var tcase = new TCase(this, type, 'mange')
+      var tcase = new TCase(this, 'expectation', 'mange')
       tcase.set({
         // On définit ici tout ce qui va servir pour l'évaluation
         // Par exemple :
@@ -385,6 +384,17 @@ Voici les étapes pour créer un nouveau sujet :
       , inverse: this.inverse // si on peut utiliser 'not'
         // etc.
       })
+    }
+    mangeMessage(){
+      return {
+  	      success: "..."
+        , failure: "..."
+        , successInverse: "..."
+        , failureInverse: "..."
+      }
+    }
+    mangeEvaluate(data){
+      data.success = !data.inverse == (...)
     }
   }
   ~~~

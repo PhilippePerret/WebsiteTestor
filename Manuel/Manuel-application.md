@@ -107,9 +107,25 @@ tag("form#monform").fillWith(values).andSubmit({button:"button#submit-button"})
 
 ### Liste des sujets et méthodes
 
+### Méthodes raccourcies
+
 ##### `visit("<route>"[,<options>])`
 
 Description : Pour visiter la route `<route>`
+
+Note : c’est un raccourci de la méthode `visit` de l’objet `Site`.
+
+
+
+### OBJET `Site(options)`
+
+Type : sujet (donc attend une méthode pour fonctionner)
+
+Description : pour la gestion du site en tant qu’instance de navigation
+
+#### Méthodes
+
+##### `site().visit("<route>"[, <options>])`
 
 Exemple : `visit("user/login")`
 
@@ -118,16 +134,19 @@ Options : {online: true}
 Exemples :
 
 ~~~javascript
-visit("") ou visit("/")
+site().visit("/")
 // => page d'accueil
 
-visit("user/login", {online: true})
+visit("")
+// => page d'accueil
+
+site({online:true}).visit("user/login")
 // => page d'identification
 ~~~
 
 
 
-#### `tag("<selector>")`
+#### OBJET `tag("<selector>")`
 
 Type : sujet (donc attend une méthode pour fonctionner)
 
