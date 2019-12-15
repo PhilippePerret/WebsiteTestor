@@ -29,7 +29,7 @@ const UI = {
       divFlash.remove()
       divFlash = undefined
     }
-    divFlash || (divFlash = Dom.createDiv({id:'flash'}))
+    divFlash || (divFlash = DCreate('DIV',{id:'flash'}))
     msg = msg.replace(/\n/g,'<br>')
     let divMsg   = DCreate('DIV',{class:options.style||'notice', text:msg})
     divFlash.append(divMsg)

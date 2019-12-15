@@ -8,6 +8,7 @@ Object.assign(UI,{
         , hfooter = UI.footer.offsetHeight
         , innerHeight = `${hwindow - (hfooter + 20)}px`
 
+    // Hauteur du rapport
     this.report.style.height = innerHeight
   }
 

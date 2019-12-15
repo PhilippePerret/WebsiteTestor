@@ -26,7 +26,6 @@ class TCase {
     Retourne un nouvel identifiant pour TCase
   **/
   static newId(){
-    this.lastId || (this.lastId = 0)
     return ++ this.lastId
   }
 
@@ -34,8 +33,15 @@ class TCase {
     Ajouter le TCase +case+ à la liste des TCases
   **/
   static add(tcase){
-    this.items || (this.items = {})
     Object.assign(this.items, {[tcase.id]: tcase})
+  }
+
+  /**
+    Réinitialiser les tcases
+  **/
+  static reset(){
+    this.lastId = 0
+    this.items = {}
   }
 
   /** ---------------------------------------------------------------------

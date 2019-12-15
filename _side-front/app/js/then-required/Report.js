@@ -29,6 +29,13 @@ class SWTReport {
     this.rapport.appendChild(this.buildMessage(msg, type, options))
   }
 
+  /**
+    Pour initialiser le rapport
+  **/
+  reset(){
+    this.rapport.innerHTML = ''
+  }
+
   buildMessage(msg, type, options){
     var css = ['report-line', type /* p.e. 'success' */]
     options = options || {}

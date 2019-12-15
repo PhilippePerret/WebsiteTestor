@@ -61,13 +61,13 @@ const ObjMenus = {
           }
         , {type:'separator'}
         , {
-              label: 'Lancer'
+              label: 'Lancer les tests…'
             , id:     'test-run'
             , accelerator: 'CmdOrCtrl+Shift+A'
             , enabled: true // Plus tard, dépendra de présence de texte ou non
-            // , click:function(){
-            //     execJS("PTexte.analyseCurrent.call(PTexte)")
-            //   }
+            , click:function(){
+                execJS("SWTestor.current.rerun.call(SWTestor.current)")
+              }
           }
         , {type:'separator'}
         ]

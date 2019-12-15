@@ -21,3 +21,12 @@
   color:green;
   font-weight:bold;
 }
+
+
+/* Pour un path de fichier */
+#report .report-line.path {
+  text-align: right;
+  color: #999999;
+  font-style:italic;
+
+}

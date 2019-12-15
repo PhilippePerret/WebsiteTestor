@@ -52,12 +52,21 @@ class SWTestor {
   }
 
   /**
+    Relancer les tests
+  **/
+  rerun(){
+    this.start()
+  }
+
+  /**
     Lancement des tests
   **/
   start(){
     console.log("-> testor.start()")
 
-    // On charge toutes les feuilles de test
+    this.reset()
+
+  // On charge toutes les feuilles de test
     // TODO Plus tard, les prendre sur le site, dans le dossier siteweb-testor-api
     // TODO Pour le moment, on les prend dans le dossier swtTests ici
 
@@ -87,13 +96,25 @@ class SWTestor {
     this.startTests()
   }
 
+  /**
+    Tout réinitialiser (avant de relancer les tests)
+  **/
+  reset(){
+    this._report && this._report.reset()
+    SWTest.reset()
+    TCase.reset()
+    console.clear()
+  }
+
   runNextTest(){
     console.log("-> runNextTest")
     var curTest = SWTest.items.shift()
     if (curTest) {
       // <= il y a encore des feuilles de test à jouer
       // => On joue la feuille de test
-      console.log("curTest:", curTest)
+      if ( this.config.get('showFileTestPath') ){
+        this.report(`--- ${curTest.relativePath}`, 'path')
+      }
       curTest.run()
     } else {
       // <= Il n'y a plus de feuille de test à jouer

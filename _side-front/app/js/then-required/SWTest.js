@@ -25,6 +25,13 @@ class SWTest {
   }
 
   /**
+    Remise à zéro des tests
+  **/
+  static reset(){
+    this.init()
+  }
+
+  /**
     Retourne un nouvelle identifiant pour une feuille de tests
   **/
   static newId(){
@@ -69,5 +76,17 @@ class SWTest {
   **/
   addCase(tcase){
     this.cases.push(tcase)
+  }
+
+
+  /**
+    Chemin relatif au fichier (depuis le dossier du site)
+  **/
+  get relativePath(){
+    return this._relpath || (this._relpath = this.defineRelPath())
+  }
+  defineRelPath(){
+    let reg = new RegExp(`^${this.testor.websiteFolder}`,)
+    return this.path.replace(reg,'.')
   }
 }
