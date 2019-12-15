@@ -74,6 +74,8 @@ class SWTestor {
       catch (e) {
         // On passe ici en cas d'erreur d'écriture dans le fichier
         this.report(`ERREUR D'ÉCRITURE DANS LE FICHIER '${ptest}' à la ligne ${e.lineNumber} : ${e.message}\n${e.stack}`, 'failure', {raw:true})
+        console.log("config.data:", this.config.data)
+        console.log("config.get('failFast'):", this.config.get('failFast'))
         if ( this.config.get('failFast') ){
           // console.log("Failfast est activé, on s'arrête tout de suite")
           this.report('FAIL-FAST ACTIVÉ', 'failure', {before:"\n"})

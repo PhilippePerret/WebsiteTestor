@@ -40,7 +40,7 @@ class PConfig {
     Retourne la configuration d'identifiant +configId+
   **/
   get(configId){
-    return this.data[configId] || this.defaultValueOf(configId)
+    return defaultize(this.data, configId, this.defaultValueOf(configId))
   }
 
   defaultValueOf(configId){

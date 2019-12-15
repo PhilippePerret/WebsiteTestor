@@ -31,7 +31,7 @@ const UI = {
     }
     divFlash || (divFlash = Dom.createDiv({id:'flash'}))
     msg = msg.replace(/\n/g,'<br>')
-    let divMsg   = Dom.createDiv({class:options.style||'notice', text:msg})
+    let divMsg   = DCreate('DIV',{class:options.style||'notice', text:msg})
     divFlash.append(divMsg)
     document.body.append(divFlash)
     // Sauf si l'option 'keep' est activée, il faudra supprimer le message
