@@ -25,6 +25,12 @@
   color:#fd5a5a;
   font-weight:bold;
 }
+#report .report-line.final-result-chiffred {
+  font-size:1.35em;
+}
+#report .report-line.final-result-chiffred.failure {
+  color:#fb0202; /* plus rouge */
+}
 #report .report-line.pending {
   color:#30f930;
   font-weight:bold;

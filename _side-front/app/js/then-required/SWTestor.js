@@ -208,7 +208,7 @@ class SWTestor {
   **/
   writeRapportFinalChiffred(){
     var color = this.failureCount > 0 ? 'failure' : 'success'
-    this.report(`success: ${this.successCount} - failures: ${this.failureCount} - pendings: ${this.pendingCount}`, color, {raw:true, before:"\n\n", style:"font-size:1.35em;color:#fb0202;"})
+    this.report(`success: ${this.successCount} - failures: ${this.failureCount} - pendings: ${this.pendingCount}`, `${color} final-result-chiffred`, {raw:true, before:"\n\n"})
   }
 
   /**
