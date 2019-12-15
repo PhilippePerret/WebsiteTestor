@@ -88,7 +88,8 @@ class SWTest {
     return this._relpath || (this._relpath = this.defineRelPath())
   }
   defineRelPath(){
-    let reg = new RegExp(`^${this.testor.websiteFolder}`,)
+    let reg = new RegExp(`^${this.testor.websiteFolder}`)
+    console.log("reg = ", reg)
     return this.path.replace(reg,'.')
   }
 }

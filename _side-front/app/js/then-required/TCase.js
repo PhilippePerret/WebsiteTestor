@@ -64,6 +64,29 @@ class TCase {
     // l'appeler avec TCase.get(<id>)
     this.constructor.add(this)
 
+    // Pour récupérer le numéro de ligne de ce TCase
+    try {throw new Error("Juste pour avoir la ligne")}
+    catch (e) {this.getCaseLineFromStack(e.stack)}
+
+  }
+
+  /**
+    Récupère le numéro de la ligne (et de colonne) du case
+  **/
+  getCaseLineFromStack(stack){
+    const stackLines  = stack.split("\n")
+        , nblines     = stackLines.length
+    for(var iline = 0; iline < nblines; ++iline){
+      const line = stackLines[iline]
+      if (line.match(this.swtest.path)){
+        // console.log("Ligne qui matche : ", line)
+        var dline = line.split(this.swtest.path)[1].split(':')
+        this.lineNumber   = Number(dline[1])
+        this.columnNumber = Number(dline[2])
+        break
+      }
+    }
+    // console.log("Ligne du case : ", this.lineNumber)
   }
 
   /**

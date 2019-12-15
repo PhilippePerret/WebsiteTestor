@@ -32,7 +32,7 @@ class SWTestor {
     this.current.checkIfHasTests()
 
     // On mémorise ce site comme dernier site testé
-    App.prefs.set('lastSiteChecked',`${this.current.sitewebFolder}::${this.current.url}`)
+    App.prefs.set('lastSiteChecked',`${this.current.websiteFolder}::${this.current.url}`)
 
 
     // TODO Pour l'application finale, utiliser la première méthode (qui ne
@@ -75,7 +75,7 @@ class SWTestor {
   **/
   constructor(url, folder){
     this.url    = url
-    this.sitewebFolder = folder
+    this.websiteFolder = folder
     // Sera mis à true par SWTInterface lorsque l'url aura été chargée
     // correctement. Noter cependant que ça n'est plus important maintenant
     // puisque les tests attendent de trouver leurs éléments avant d'être
@@ -88,7 +88,7 @@ class SWTestor {
   **/
   isValid(){
     try {
-      fs.existsSync(this.sitewebFolder) || raise(`Le site à l'adresse ${this.sitewebFolder} est introuvable…`)
+      fs.existsSync(this.websiteFolder) || raise(`Le site à l'adresse ${this.websiteFolder} est introuvable…`)
       this.url || raise("Il faut absolument l'URL du site, pour le tester en intégration.")
       return true
     } catch (e) {
@@ -160,7 +160,7 @@ class SWTestor {
       // <= il y a encore des feuilles de test à jouer
       // => On joue la feuille de test
       if ( this.config.get('showFileTestPath') ){
-        this.report(`--- ${curTest.relativePath}`, 'path')
+        this.report(`${curTest.relativePath}`, 'path', {after:"\n"})
       }
       curTest.run()
     } else {
@@ -171,11 +171,11 @@ class SWTestor {
   }
 
   startTests(){
-    this.report("Lancement des tests", 'notice', {withTime:true, after:"\n"})
+    this.report("Lancement des tests", 'notice', {raw:true, withTime:true, after:"\n\n"})
     this.runNextTest()
   }
   endTests(){
-    this.report("Fin des tests", 'notice', {withTime:true, before:"\n"})
+    this.report("Fin des tests", 'notice', {raw:true, withTime:true, before:"\n"})
     this.writeRapportFinalChiffred()
   }
 
@@ -250,7 +250,7 @@ class SWTestor {
     // Il faut copier l'interface sur le site
     // Pour le moment, on le fait de façon statique, mais ce sera dynamique ensuite
     const srcFolder = path.join('.','_side-front','SiteWebTestor-API','siteweb-testor-api')
-    const dstFolder = path.join(this.sitewebFolder, 'siteweb-testor-api')
+    const dstFolder = path.join(this.websiteFolder, 'siteweb-testor-api')
     // Pour le moment, on recrée à chaque fois
     fs.existsSync(dstFolder) && execSync(`rm -rf "${dstFolder}"`)
     fs.existsSync(dstFolder) || fs.mkdirSync(dstFolder)
@@ -303,7 +303,7 @@ class SWTestor {
     // Il faut copier l'interface sur le site
     // Pour le moment, on le fait de façon statique, mais ce sera dynamique ensuite
     const srcFolder = path.join('.','_side-front','SiteWebTestor-API','siteweb-testor-api')
-    const dstFolder = path.join(this.sitewebFolder, 'siteweb-testor-api')
+    const dstFolder = path.join(this.websiteFolder, 'siteweb-testor-api')
     // Pour le moment, on recrée à chaque fois
     fs.existsSync(dstFolder) && execSync(`rm -rf "${dstFolder}"`)
     fs.existsSync(dstFolder) || fs.mkdirSync(dstFolder)
@@ -375,11 +375,11 @@ class SWTestor {
     'siteweb-testor-api' qui contient les fichiers utiles aux tests
   **/
   get testFilesFolder(){
-    return path.join(this.sitewebFolder, 'swtTests')
+    return path.join(this.websiteFolder, 'swtTests')
   }
 
   get configPath(){
-    return this._configpath || (this._configpath = path.join(this.sitewebFolder,'.swt-config.json'))
+    return this._configpath || (this._configpath = path.join(this.websiteFolder,'.swt-config.json'))
   }
 
 } //SWTestor

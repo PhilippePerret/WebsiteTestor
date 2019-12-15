@@ -11,8 +11,8 @@ class Expectation {
     * INSTANCE
     *
   *** --------------------------------------------------------------------- */
-  constructor( owner ){
-    this.owner = owner
+  constructor( tcase ){
+    this.tcase = tcase
   }
 
   /**
@@ -66,7 +66,10 @@ class Expectation {
     } else {
       var propMessage = this.isSuccess ? 'success' : 'failure'
       this.inverse && (propMessage += 'Inverse')
-      return this.owner/*TCase*/.owner/**/[`${this.data.method}Messages`](this.data)[propMessage]
+      var msg = this.tcase/*TCase*/.owner/**/[`${this.data.method}Messages`](this.data)[propMessage]
+      this.data.testError && (msg += ` (${this.data.testError})`)
+      msg += `<div class="small right">[${this.tcase.swtest.relativePath} l.${this.tcase.lineNumber}]</div>`
+      return msg
     }
   }
 }
