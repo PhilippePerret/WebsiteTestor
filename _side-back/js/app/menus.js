@@ -63,7 +63,7 @@ const ObjMenus = {
         , {
               label: 'Lancer les tests…'
             , id:     'test-run'
-            , accelerator: 'CmdOrCtrl+Shift+A'
+            , accelerator: 'CmdOrCtrl+T'
             , enabled: true // Plus tard, dépendra de présence de texte ou non
             , click:function(){
                 execJS("SWTestor.current.rerun.call(SWTestor.current)")

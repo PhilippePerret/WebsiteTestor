@@ -133,7 +133,7 @@ class Interface {
     poursuivre
   **/
   waitFor(tag){
-    const TIMEOUT = 20
+    const TIMEOUT = 5
     const LAPS    = 500
     const timeout = new Date().getTime() + TIMEOUT*1000
     return new Promise((ok,ko) => {
