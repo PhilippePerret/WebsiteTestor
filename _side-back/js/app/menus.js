@@ -24,7 +24,7 @@ const ObjMenus = {
             , id: 'choose-website'
             , accelerator: 'CmdOrCtrl+O'
             , enabled: true
-            // , click:function(){execJS("PTexte.chooseTexte.call(PTexte)")}
+            , click:function(){execJS("SWTestor.chooseSite.call(SWTestor)")}
           }
         , { type:'separator' }
         , { type:'separator' }

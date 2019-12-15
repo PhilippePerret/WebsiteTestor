@@ -1,5 +1,6 @@
 #report {
-
+  background-color:black;
+  color:white;
 }
 #report .report-line {
   font-family:Arial, sans-serif;
@@ -7,18 +8,18 @@
 }
 
 #report .report-line.notice {
-  color:blue;
+  color:#23a4ff;
 }
 
 #report .report-line.success {
   color:green;
 }
 #report .report-line.failure {
-  color:red;
+  color:#fd5a5a;
   font-weight:bold;
 }
 #report .report-line.pending {
-  color:green;
+  color:#30f930;
   font-weight:bold;
 }
 

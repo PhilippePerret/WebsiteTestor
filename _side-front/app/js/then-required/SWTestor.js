@@ -27,6 +27,16 @@ class SWTestor {
     this.current.load()
   }
 
+  /**
+    Méthode appelée pour choisir un site
+    Choisir un site consiste à :
+      - définir le dossier local (ou distant)
+      - définir l'url de base
+  **/
+  static chooseSite(){
+    App.requireModule('choose-a-site')
+  }
+
   static get current(){return this._current}
   static set current(v){
     this._current = v
