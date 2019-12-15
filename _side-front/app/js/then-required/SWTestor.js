@@ -115,7 +115,7 @@ class SWTestor {
     // TODO Plus tard, les prendre sur le site, dans le dossier siteweb-testor-api
     // TODO Pour le moment, on les prend dans le dossier swtTests ici
 
-    var testFiles = fs.readdirSync("./swtTests",'utf8')
+    var testFiles = fs.readdirSync(this.testFilesFolder,'utf8')
     console.log("testFiles", testFiles)
 
     for(var itest = 0, len = testFiles.length; itest < len; ++itest){
@@ -152,7 +152,6 @@ class SWTestor {
 
   runNextTest(){
     console.log("-> runNextTest")
-    throw new Error("Pour voir d'où vient l'appel")
     var curTest = SWTest.items.shift()
     if (curTest) {
       // <= il y a encore des feuilles de test à jouer
@@ -169,11 +168,11 @@ class SWTestor {
   }
 
   startTests(){
-    this.report("Lancement des tests", 'notice', {withTime:true, after:"\n\n"})
+    this.report("Lancement des tests", 'notice', {withTime:true, after:"\n"})
     this.runNextTest()
   }
   endTests(){
-    this.report("Fin des tests", 'notice', {withTime:true, before:"\n\n"})
+    this.report("Fin des tests", 'notice', {withTime:true, before:"\n"})
   }
 
 
@@ -212,12 +211,6 @@ class SWTestor {
   get config(){
     return this._config || (this._config = new PConfig(this))
   }
-  get configPath(){
-    return this._configpath || (this._configpath = path.join(this.sitewebFolder,'.swt-config.json'))
-  }
-  // get container(){
-  //   return this._container || (this._container = UI.siteContainer)
-  // }
 
   /**
     Méthode qui vérifie si le dossier des tests existe et propose d'en
@@ -227,7 +220,11 @@ class SWTestor {
     if ( fs.existsSync(this.testFilesFolder) ) return
     let res = await confirmer("Le site choisi ne contient pas de tests. Dois-je les initier ? (fabriquer le dossier et une première feuille exemple)")
     if ( res ) {
-      console.log("Je vais construire un premier test.")
+      fs.mkdirSync(this.testFilesFolder)
+      fs.copyFileSync(
+          path.join('.','assets','template','test-exemple.js')
+        , path.join(this.testFilesFolder, 'test-exemple.js')
+      )
     }
   }
   /**
@@ -367,6 +364,10 @@ class SWTestor {
   **/
   get testFilesFolder(){
     return path.join(this.sitewebFolder, 'swtTests')
+  }
+
+  get configPath(){
+    return this._configpath || (this._configpath = path.join(this.sitewebFolder,'.swt-config.json'))
   }
 
 } //SWTestor
