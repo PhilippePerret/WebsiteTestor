@@ -56,8 +56,7 @@ class SWTestor {
   **/
   constructor(url, folder){
     this.url    = url
-    this.folder = folder
-
+    this.sitewebFolder = folder
   }
 
   /**
@@ -65,13 +64,6 @@ class SWTestor {
   **/
   start(){
     console.log("-> testor.start()")
-    // this.casesList = [
-    //     {message: "Je vais lancer les tests."}
-    //   , {eval: 'document.querySelector("div#titre_site").innerHTML'}
-    //   , {click: 'a[href="signup"]', waitFor:'form#form_user_signup'}
-    //   , {fill: 'form#form_user_signup', values: {user_pseudo:'Phil2.0', user_mail:'phil@chez.lui'}}
-    //   // , {eval:'document.querySelector("form#form_user_signup")'}
-    // ]
 
     // On charge toutes les feuilles de test
     // TODO Plus tard, les prendre sur le site, dans le dossier siteweb-testor-api
@@ -85,26 +77,16 @@ class SWTestor {
       // Il faut faire un nouveau SWTest
       var ptest = `${testsFolder}/${p}`
       SWTest.current = new SWTest(this, ptest)
-      require(ptest)
+      try {
+        require(ptest)
+      } catch (e) {
+        // On passe ici en cas d'erreur d'écriture dans le fichier
+        this.report(`ERREUR D'ÉCRITURE DANS LE FICHIER '${ptest}' à la ligne ${e.lineNumber} : ${e.message}\n${e.stack}`, 'failure')
+        if ( this.config.get('failFast') ) return
+      }
     })
 
-    // Exemple : tester que le div#titre_site soit bien "Atelier Icare"
-    // Le code du test doit être :
-    //  tag('div#titre_site').contains('Atelier Icare')
-    // Il faudrait que cette ligne produise :
-    //    - envoi de {eval:DGet('...').innerHTML, expected:'Atelier Icare'}
-    //
-    // Si je ne veux pas qu'il y ait trop de code côté site, il faut
-    // décomposer au maximum ici. Donc, être capable, ici, de
-    // déterminer que 'tag(...).contains(...)' corresponde à la lecture
-    // d'une balise et de son contenu, et que son contenu soit égal à la
-    // valeur attendu.
-    // Ici, 'tag(...)' pourrait appeler une méthode qui va chercher la balise
-    // correspondante.
-
-    this.report("Lancement des tests\n", 'notice', {withTime:true})
-
-    this.runNextTest()
+    this.startTests()
   }
 
   runNextTest(){
@@ -122,50 +104,17 @@ class SWTestor {
     }
   }
 
+  startTests(){
+    this.report("Lancement des tests\n", 'notice', {withTime:true})
+    this.runNextTest()
+  }
   endTests(){
     this.report("\nFin des tests", 'notice', {withTime:true})
   }
 
-  /** ---------------------------------------------------------------------
-    *
-    *   Méthodes de tests
-    *
-  *** --------------------------------------------------------------------- */
-  hasCss(selector, args){
-    return (new Expectation(this.searchInPage(selector, args), args)).result
-  }
-  notHasCss(selector,args){
-    return (new Expectation(!this.searchInPage(selector, args), args)).result
-  }
-
-  /** ---------------------------------------------------------------------
-    *
-    * Méthodes d'interaction
-    *
-  *** --------------------------------------------------------------------- */
-  // click(selector,args){
-  //   this.sendToSite({click:'a[href="signup"]'})
-  // }
-  // fill(selector,args){
-  //
-  // }
-
-  // /** ---------------------------------------------------------------------
-  //   *   SOUS-MÉTHODES DE TEST
-  //   *
-  // *** --------------------------------------------------------------------- */
-  //
-  // async searchInPage(selector, args){
-  //   return false
-  // }
-
-  /** ---------------------------------------------------------------------
-    *   Messages de communication
-    *
-  *** --------------------------------------------------------------------- */
 
   /**
-    Raccourci pour envoyer des données au site
+    Raccourci pour communiquer avec le site
   **/
   sendToSite(data){
     this.interface.send(data)
@@ -195,6 +144,13 @@ class SWTestor {
     this._report || (this._report = new SWTReport(this))
     this._report.write(msg, type, options)
   }
+
+  get config(){
+    return this._config || (this._config = new PConfig(this))
+  }
+  get configPath(){
+    return this._configpath || (this._configpath = path.join(this.sitewebFolder,'.swt-config.json'))
+  }
   // get container(){
   //   return this._container || (this._container = UI.siteContainer)
   // }
@@ -210,7 +166,7 @@ class SWTestor {
     // Il faut copier l'interface sur le site
     // Pour le moment, on le fait de façon statique, mais ce sera dynamique ensuite
     const srcFolder = path.join('.','_side-front','SiteWebTestor-API','siteweb-testor-api')
-    const dstFolder = path.join(this.folder, 'siteweb-testor-api')
+    const dstFolder = path.join(this.sitewebFolder, 'siteweb-testor-api')
     // Pour le moment, on recrée à chaque fois
     fs.existsSync(dstFolder) && execSync(`rm -rf "${dstFolder}"`)
     fs.existsSync(dstFolder) || fs.mkdirSync(dstFolder)
@@ -263,7 +219,7 @@ class SWTestor {
     // Il faut copier l'interface sur le site
     // Pour le moment, on le fait de façon statique, mais ce sera dynamique ensuite
     const srcFolder = path.join('.','_side-front','SiteWebTestor-API','siteweb-testor-api')
-    const dstFolder = path.join(this.folder, 'siteweb-testor-api')
+    const dstFolder = path.join(this.sitewebFolder, 'siteweb-testor-api')
     // Pour le moment, on recrée à chaque fois
     fs.existsSync(dstFolder) && execSync(`rm -rf "${dstFolder}"`)
     fs.existsSync(dstFolder) || fs.mkdirSync(dstFolder)

@@ -5,17 +5,21 @@
 //   logger: require('electron-log')
 // })
 
+const electron = require('electron')
 const path = require('path')
 const glob = require('glob')
 const {app, BrowserWindow} = require('electron')
 const ipcMain = require('electron').ipcMain;
+const { Menu, MenuItem } = require('electron')
 
 // Mode débug ?
 const debug = /--debug/.test(process.argv[2])
 
 // La fenêtre principale et la fenêtre du site
-let mainWindow = null
-let siteWindow = null
+global.mainWindow = null
+global.ObjMenus = require('./_side-back/js/app/menus')
+global.screenWidth   = null
+global.screenHeight  = null
 
 // Fonction appelée en bas de ce module, pour initialiser l'application
 function initialize () {
@@ -26,6 +30,12 @@ function initialize () {
   // Chargement de tous les fichiers javascript utiles au
   // processus principal
   loadMainProcessFiles()
+
+  // Construction des menus
+  // Note : on a besoin de `mainMenuBar` pour retrouver les menus par
+  // leur identifiant (cf. le modules modules/menus.js)
+  ObjMenus.mainMenuBar = Menu.buildFromTemplate(ObjMenus.data_menus)
+  Menu.setApplicationMenu(ObjMenus.mainMenuBar)
 
   // On doit créer le fichier main.html
   // Utiliser "npm run start-update" pour actualiser le fichier
@@ -78,9 +88,14 @@ function initialize () {
 
   // Création de la fenêtre principale
   function createMainWindow () {
+
+    const { width, height } = electron.screen.getPrimaryDisplay().workAreaSize
+    screenWidth   = width
+    screenHeight  = height
+
     const windowOptions = {
-        width: 1980
-      , height: 900
+        width: screenWidth
+      , height: screenHeight
       , x: 0
       , y:  0
       , frame: false

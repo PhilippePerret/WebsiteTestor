@@ -6,6 +6,59 @@ const UI = {
     this.setDimensions()
   }
 
+
+  /**
+    Affiche un message
+    @param {String} msg   Le message à afficher
+    @param {Hash|String}  options   Les options ou le style
+                          keep:     Si true, on ne fait pas disparaitre le message
+                          style:    Le style, 'notice', 'neutre' ou 'warning'
+                          replace:  Si true, le texte précédente est effacé et
+                                    remplacé par celui-là
+                          waiter:   Si true, un "waiter" est placé devant le message
+  **/
+, flash(msg, options){
+    const my = this
+    if ( 'string' === typeof options ) options = {style:options}
+    else { options = options || {} }
+    if ( options.waiter ) msg = `${HORLOGE_ATTENTE} ${msg}`
+    // Si un timer de destruction est en route, il faut l'interrompre
+    my.flashTimer && this.clearFlashTimer()
+    let divFlash = document.querySelector('#flash')
+    if ( options.replace && divFlash ){
+      divFlash.remove()
+      divFlash = undefined
+    }
+    divFlash || (divFlash = Dom.createDiv({id:'flash'}))
+    msg = msg.replace(/\n/g,'<br>')
+    let divMsg   = Dom.createDiv({class:options.style||'notice', text:msg})
+    divFlash.append(divMsg)
+    document.body.append(divFlash)
+    // Sauf si l'option 'keep' est activée, il faudra supprimer le message
+    // au bout d'un certain temps
+    if ( !options.keep ) {
+      let nombre_mots = msg.split(' ').length
+      if ( nombre_mots < 6 ) nombre_mots = 6
+      let laps = 1000 * ( nombre_mots / 1.5 )
+      my.flashTimer = setTimeout(()=>{
+        let flash = document.querySelector('#flash')
+        flash.classList.add('vanish')
+        my.clearFlashTimer()
+        my.flashTimer = setTimeout(()=>{
+          my.clearFlashTimer()
+          flash.remove()
+        }, laps + 5000)
+      }, laps)
+    }
+  }
+
+, clearFlashTimer(){
+    const my = this
+    clearTimeout(my.flashTimer)
+    my.flashTimer = null
+    document.querySelector('#flash').classList.remove('vanish')
+  }
+
   /**
     Rend visible l'élément +o+ {HTMLElement} dans son parent
   **/

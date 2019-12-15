@@ -1,7 +1,10 @@
-* Il reste à définir comment :
-  * savoir que la page est recharchée
-    En fait, il faudrait pouvoir attendre le rechargement de la page pour relancer le case suivant
-    
+* erreur système
+* le numéro de ligne de chaque case (try)
+* afficher le nom du fichier traité (option)
+* réglage des options
+* ma méthode de test "visit"
+
+
 
 * avant toute chose, il faut s'assurer qu'on puisse interagir avec le site affiché, au niveau de :
   * les clicks sur les boutons, les liens, les éléments
