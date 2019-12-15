@@ -18,9 +18,9 @@ Object.assign(App,{
       Mettre ici le code à exécuter à l'initialisation de l'application
       (après le chargement complet de la page)
     */
-    const dstURI    = 'http://localhost/AlwaysData/Icare_AD_2018/'
-    const dstFolder = path.join(App.homeDirectory,'Sites','AlwaysData','Icare_AD_2018')
-    await SWTestor.open(dstURI, dstFolder)
+    // const dstURI    = 'http://localhost/AlwaysData/Icare_AD_2018/'
+    // const dstFolder = path.join(App.homeDirectory,'Sites','AlwaysData','Icare_AD_2018')
+    // await SWTestor.open(dstURI, dstFolder)
 
   }
 

@@ -50,6 +50,18 @@ function confirmer(msg, options){
 // définit `defaultAnswer` qui permet de savoir que c'est un prompt
 function prompt(msg, args){ return confirm(msg, args) }
 
+/**
+  Retourne null dans tous les cas où +foo+ est vide
+  Donc une chaine vide, une liste vide, un objet vide, etc.
+**/
+window.nullIfEmpty = function(foo){
+  if ( 'string' === typeof(foo) && foo == '') return null
+  if ( undefined === typeof(foo) ) return null
+  if ( (foo.length instanceof Function) && foo.length == 0) return null
+  if ( 'object' === typeof(foo) && Object.keys(foo).length == 0) return null
+  return foo
+}
+
 window.isUndefined = function(foo){ return 'undefined' === typeof(foo) }
 // function isDefined(foo){ return false === isUndefined(foo) }
 window.isDefined = function(foo){ return false === isUndefined(foo) }

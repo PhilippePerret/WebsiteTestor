@@ -16,8 +16,19 @@ class SWTestor {
     Ouvre l'url dans la fenêtre du site
     (version avec interface)
   **/
-  static open(url, dstFolder){
-    this.current = new SWTestor(url, dstFolder)
+  static open({siteUrl, sitePath}){
+    if ( !siteUrl || !sitePath) return // non choix d'un site
+    if ( !sitePath.startsWith('/')){
+      sitePath = path.join(App.homeDirectory,'Sites', sitePath)
+    }
+    this.current = new SWTestor(siteUrl, sitePath)
+    if ( !this.current.isValid() ){
+      this._current = null
+      return
+    }
+
+    // On mémorise ce site comme dernier site testé
+    
 
     // TODO Pour l'application finale, utiliser la première méthode (qui ne
     // recrée pas chaque fois tout le dossier sur le site)
@@ -34,7 +45,8 @@ class SWTestor {
       - définir l'url de base
   **/
   static chooseSite(){
-    App.requireModule('choose-a-site')
+    this.chooseASite = App.requireModule('choose-a-site').bind(this)
+    this.chooseASite()
   }
 
   static get current(){return this._current}
@@ -61,6 +73,19 @@ class SWTestor {
     this.sitewebFolder = folder
   }
 
+  /**
+    Retourne true si le site est valide
+  **/
+  isValid(){
+    try {
+      fs.existsSync(this.sitewebFolder) || raise(`Le site à l'adresse ${this.sitewebFolder} est introuvable…`)
+      this.url || raise("Il faut absolument l'URL du site, pour le tester en intégration.")
+      return true
+    } catch (e) {
+      App.onError(e)
+      return false
+    }
+  }
   /**
     Relancer les tests
   **/

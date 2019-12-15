@@ -1,4 +1,11 @@
 #report {
+  position:fixed;
+  top:20px;
+  right:40px;
+  height:400px;
+  width:600px;
+  overflow:auto;
+  padding:1em;
   background-color:black;
   color:white;
 }
@@ -12,7 +19,7 @@
 }
 
 #report .report-line.success {
-  color:green;
+  color:#52ff52;
 }
 #report .report-line.failure {
   color:#fd5a5a;

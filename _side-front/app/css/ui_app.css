@@ -17,17 +17,9 @@ iframe#interface {
 
 /*
   Partie contenant le rapport
+  cf. le fichier report.css
  */
-section#report {
-  position:fixed;
-  top:20px;
-  right:40px;
-  height:400px;
-  width:600px;
-  overflow:auto;
-  background-color:#b9b9b9;
-  padding:1em;
-}
+
 /*
   Partie contenant le feuille de test en édition
  */
