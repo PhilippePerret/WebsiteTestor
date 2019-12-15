@@ -29,6 +29,7 @@ class Interface {
   **/
   receiveFromTestor(ev){
     const data = ev.data
+    this.currentData = data
     console.log("Données reçues par Interface.js :", data)
 
     // Si la propriété waitFor est définie dans les données, il
@@ -39,12 +40,23 @@ class Interface {
       console.log("Je dois attendre sur l'élément '%s'", data.waitFor)
       this.waitFor(data.waitFor)
         .then(this.treateData.bind(this, data))
-        // TODO Traiter l'erreur (de test, pas système)
-        .catch(console.error)
+        .catch(this.onErrorWaitFor.bind(this))
     } else {
       this.treateData.bind(this, data)
     }
   }
+
+  /**
+    Méthode appelée quand une balise n'a pas été trouvée et que le
+    timeout a été atteint
+    Elle appelle sendTestor pour retourner les données en signalant l'erreur
+  **/
+  onErrorWaitFor(err){
+    console.error("TIMEOUT ATTEINT AVEC : ", err)
+    Object.assign(this.currentData,{testError: `Impossible de trouver la balise ${err.tag}…`})
+    this.sendTestor(this.currentData)
+  }
+
 
   treateData(data){
     console.log('-> treateData(data=)', data)
@@ -149,10 +161,9 @@ class Interface {
       delete this.timerWaitFor
       ok()
     } else if (new Date().getTime() > timeout) {
-      console.log("Timeout dépassé")
       clearInterval(this.timerWaitFor)
       delete this.timerWaitFor
-      ko("-Timeout-")
+      ko({tag:tag, timeout:timeout})
     } else {
       // <= Le tag n'a pas été trouvé
       // => on poursuit
