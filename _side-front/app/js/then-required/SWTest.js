@@ -67,7 +67,9 @@ class SWTest {
       // => On joue le cas
       this.tcase.run()
     } else {
-      console.log("TEST TERMINÉ !")
+      // Le dernier case a été traité, il faut passer
+      // à la feuille de test suivante
+      this.testor.runNextTest()
     }
   }
 

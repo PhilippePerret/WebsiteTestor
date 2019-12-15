@@ -16,6 +16,21 @@ class Expectation {
   }
 
   /**
+    On exécute l'expactation, c'est-à-dire principalement :
+      - on écrit le rapport
+      - on incrémente le nombre de succès ou d'échec
+  **/
+  execute(){
+    if ( this.isSuccess ) {
+      ++ testor.successCount
+    } else if ( this.isFailure ) {
+      ++ testor.failureCount
+    } else {
+      ++ testor.pendingCount
+    }
+    this.writeShortReport()
+  }
+  /**
     Écriture du rapport court
   **/
   writeShortReport(){
@@ -30,7 +45,7 @@ class Expectation {
   set data(v){ this._data = v}
 
   get isSuccess(){return this.data.success }
-  get isFailure(){return this._isfailure || (this._isfailure = !this.isSuccess)}
+  get isFailure(){return this._isfailure || (this._isfailure = !(this.isPending||this.isSuccess))}
   get isPending(){return this.data.pending}
 
   get inverse(){return this.data.inverse}

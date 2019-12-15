@@ -147,6 +147,9 @@ class SWTestor {
     this._report && this._report.reset()
     SWTest.reset()
     TCase.reset()
+    this.successCount = 0
+    this.failureCount = 0
+    this.pendingCount = 0
     console.clear()
   }
 
@@ -173,8 +176,17 @@ class SWTestor {
   }
   endTests(){
     this.report("Fin des tests", 'notice', {withTime:true, before:"\n"})
+    this.writeRapportFinalChiffred()
   }
 
+
+  /**
+    Écriture du rapport finale chiffré
+  **/
+  writeRapportFinalChiffred(){
+    var color = this.failureCount > 0 ? 'failure' : 'success'
+    this.report(`success: ${this.successCount} - failures: ${this.failureCount} - pendings: ${this.pendingCount}`, color, {raw:true, before:"\n\n", style:"font-size:1.35em;color:#fb0202;"})
+  }
 
   /**
     Raccourci pour communiquer avec le site

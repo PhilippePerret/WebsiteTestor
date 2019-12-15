@@ -83,7 +83,7 @@ class TCase {
     console.log("-> <TCase #%d>.afterRun", this.id)
     this.owner.evaluate(data) // modifie data
     this.expectation.data = data
-    this.expectation.writeShortReport()
+    this.expectation.execute()
     this.swtest.runNextCase()
   }
 

@@ -40,13 +40,11 @@ class SWTReport {
     var css = ['report-line', type /* p.e. 'success' */]
     options = options || {}
     options.withTime && (msg = `${now()} -- ${msg}`)
-    msg = `--- ${msg}`
-    if ( options.before ) msg = `${options.before}${msg}`
-    if ( options.after )  msg = `${msg}${options.after}`
-    if ( ! options.raw ) {
-      msg = msg.replace(/\r?\n/g,'<br><br>')
-    }
-    return DCreate('DIV', {class:css.join(' '), inner:msg})
+    options.raw || (msg = `--- ${msg}`)
+    if ( options.before ) msg = `${options.before.replace(/\r?\n/g,'<br>')}${msg}`
+    if ( options.after )  msg = `${msg}${options.after.replace(/\r?\n/g,'<br>')}`
+    options.raw || (msg = msg.replace(/\r?\n/g,'<br>'))
+    return DCreate('DIV', {class:css.join(' '), inner:msg, style:options.style})
   }
 
 
