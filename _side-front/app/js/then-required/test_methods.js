@@ -6,6 +6,9 @@
   tests.
 
 *** --------------------------------------------------------------------- */
+function it(description, options){
+  return new SWTWriteReport('it', description, options)
+}
 
 function site(options){
   return new SiteSubject(options)

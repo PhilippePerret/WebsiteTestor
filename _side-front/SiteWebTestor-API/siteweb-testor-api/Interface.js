@@ -102,6 +102,16 @@ class Interface {
     *   Méthodes de traitement par contexte
     *
   *** --------------------------------------------------------------------- */
+
+  /**
+    Pour le contexte 'Report'
+    Qui ne sert que pour écrire des messages de retour
+    Donc on s'en retourne tout de suite
+  **/
+  treateDataAsReport(data){
+    this.sendTestor.call(this,data)
+  }
+
   /**
     Pour le contexte 'Site'
     Initiée pour la commande test 'visit'

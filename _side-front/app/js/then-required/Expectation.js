@@ -74,7 +74,7 @@ class Expectation {
       this.inverse && (propMessage += 'Inverse')
       var msg = this.tcase/*TCase*/.owner/**/[`${this.data.method}Messages`](this.data)[propMessage]
       this.data.testError && (msg += ` (${this.data.testError})`)
-      msg += `<div class="small right">[${this.tcase.swtest.relativePath} l.${this.tcase.lineNumber}]</div>`
+      this.isSuccess || (msg += `<div class="small right">[${this.tcase.swtest.relativePath} l.${this.tcase.lineNumber}]</div>`)
       return msg
     }
   }

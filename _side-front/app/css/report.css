@@ -44,3 +44,15 @@
   font-style:italic;
 
 }
+
+/* Pour les 'it' */
+#report .report-line.it {
+  color:cyan;
+  font-size:1.2em;
+}
+#report .report-line.it:before {
+  content: '📐 '
+}
+/* #report .report-line.it:after {
+  content:' ?'
+} */

@@ -4,7 +4,7 @@
 
 ## À faire
 
-- Une méthode simple qui vérifie tout le temps si la page est prêt. Quelque chose comme `site.waitForReady()`. Elle doit être appelée implicitement avec plein de méthodes à commencer par `site.load` qui charge une page particulière dans la fenêtre du site.
+
 
 ## Schéma général de communication
 
