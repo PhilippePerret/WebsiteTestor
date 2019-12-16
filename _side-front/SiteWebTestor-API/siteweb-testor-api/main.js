@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
   document.getElementById('site').contentWindow.addEventListener('DOMContentLoaded', event => {
     console.log("La page du site est prête.")
     // On envoie un message à l'interface pour dire que le site est prêt
-    swtInterface.sendTestor({'firstReady':true})
+    swtInterface.sendToTestor({'firstReady':true})
   })
 
 })

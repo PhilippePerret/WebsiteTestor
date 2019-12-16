@@ -2,6 +2,14 @@
 
 [TOC]
 
+## Inspection du code HTML du site
+
+À cause de l’utilisation de l’iframe, on ne peut pas utiliser la console de développement pour inspecter le code du site. Pour palier cette limitation, on utilise l’item de menu «  Site > Inspecter le code… » (ou le raccourci clavier `Cmd+Alt+C`).
+
+Cela place le code du site dans un nouvel espace, et l’on peut utiliser l’outil d’inspection normal.
+
+Pour fermer cette visualisation du site, cliquez simplement sur la fenêtre.
+
 ## Feuilles de tests
 
 Les feuilles de tests doivent se trouve dans le dossier `swtTests` à la racine du site à tester.
@@ -11,6 +19,23 @@ Les feuilles de tests doivent se trouve dans le dossier `swtTests` à la racine 
 Toute la suite de ce manuel définit comment il faut rédiger les feuilles de tests.
 
 On trouvera un liste de toutes les méthodes en [annexe](#annexesmethodes).
+
+## Le cas de `it`
+
+Il est tout à fait possible d’utiliser des `it` dans les feuilles de tests, mais ils n’ont absolument pas la même fonction que dans les autres testeurs (rspec, etc.). Ici, ils servent simplement, pour le moment, à « titrer » les tests et s’utilisent comme les autres cas, en une simple ligne. Par exemple :
+
+~~~javascript
+it("Identification d'un utilisateur")
+visit("user/login")
+tag('a[href="logout"]').not.exists()
+tag('form#login-form').fillWith({...}).andSubmit()
+tag('a[href="logout"]').exists()
+tag('div.notice').contains("Bienvenue !")
+~~~
+
+
+
+> Note : dans un avenir plus ou moins proche, il sera possible de coloriser différemment le message de ce `it` en fonction de la réussite ou de l’échec du cas.
 
 ## Définition de la route à tester (url)
 

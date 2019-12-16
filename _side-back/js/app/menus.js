@@ -27,6 +27,11 @@ const ObjMenus = {
             , click:function(){execJS("SWTestor.chooseSite.call(SWTestor)")}
           }
         , { type:'separator' }
+        , {
+            label: 'Inspecter le code…'
+          , accelerator: 'CmdOrCtrl+Alt+C'
+          , click:function(){execJS('SWTestor.current.showSiteHTMLCode.call(SWTestor.current)')}
+        }
         , { type:'separator' }
         , { role: 'quit' }
         ]

@@ -18,42 +18,51 @@ class Interface {
 
   /**
     Méthode utilisée pour envoyer un message au testeur
+    Sera réceptionné par SWTInterface.onMessage
   **/
-  sendTestor(data){
+  sendToTestor(data){
     Object.assign(data, {responseTime: new Date().getTime()})
     this.parent.postMessage(data, '*')
   }
 
   /**
-    Méthode recevant les messages du testeur
+    Méthode recevant les messages du testeur (quand on utilise
+    la méthode <SWTestor#sendToSite>)
   **/
   receiveFromTestor(ev){
     const data = ev.data
     this.currentData = data
-    // console.log("Données reçues par Interface.js :", data)
+    console.log("Données reçues par Interface.js :", data)
 
-    // Si la propriété waitFor est définie dans les données, il
-    // faut attendre la présence de cet élément avant d'exécuter le code
-    // Si l'élément n'est pas trouvé après un timeout, on considère que le
-    // cas est un échec
-    if (data.waitFor) {
-      this.waitFor(data.waitFor)
-        .then(this.treateData.bind(this, data))
-        .catch(this.onErrorWaitFor.bind(this))
+    if ( data.NotACase ) {
+      // Une autre opération qu'un TCase à jouer
+      data.eval && this.getEvalResult(data)
+      this.sendToTestor(data)
     } else {
-      this.treateData.call(this, data)
+      // Si la propriété waitFor est définie dans les données, il
+      // faut attendre la présence de cet élément avant d'exécuter le code
+      // Si l'élément n'est pas trouvé après un timeout, on considère que le
+      // cas est un échec
+      if (data.waitFor) {
+        this.waitFor(data.waitFor)
+          .then(this.treateData.bind(this, data))
+          .catch(this.onErrorWaitFor.bind(this))
+      } else {
+        this.treateData.call(this, data)
+      }
     }
+
   }
 
   /**
     Méthode appelée quand une balise n'a pas été trouvée et que le
     timeout a été atteint
-    Elle appelle sendTestor pour retourner les données en signalant l'erreur
+    Elle appelle sendToTestor pour retourner les données en signalant l'erreur
   **/
   onErrorWaitFor(err){
     console.error("TIMEOUT ATTEINT AVEC : ", err)
     Object.assign(this.currentData,{testError: `Impossible de trouver la balise ${err.tag}…`})
-    this.sendTestor(this.currentData)
+    this.sendToTestor(this.currentData)
   }
 
 
@@ -109,7 +118,7 @@ class Interface {
     Donc on s'en retourne tout de suite
   **/
   treateDataAsReport(data){
-    this.sendTestor.call(this,data)
+    this.sendToTestor.call(this,data)
   }
 
   /**
@@ -123,7 +132,7 @@ class Interface {
         document.querySelector('#site').src = `../${data.route}`
         break;
     }
-    this.sendTestor.call(this,data)
+    this.sendToTestor.call(this,data)
   }
 
   treateDataAsDom(data){
@@ -155,7 +164,7 @@ class Interface {
         break
     }
 
-    this.sendTestor.call(this,data)
+    this.sendToTestor.call(this,data)
   }
 
   treateDataAsDb(data){

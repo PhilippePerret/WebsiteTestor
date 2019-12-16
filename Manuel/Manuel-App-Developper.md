@@ -4,7 +4,11 @@
 
 ## À faire
 
+## Communication entre testeur et site
 
+La méthode `<SWTestor>#sendToSite` envoie un message (un `{object} dataMessage`) à l’interface du site testé, message reçu par `<Interface>#receiveFromTestor(dataMessage)`. L’interface produit une opération sur le site puis utilise sa méthode `<Interface>#sendToTestor(dataMessage)` pour appeler, côté testeur, la méthode`<SWTInterface>#onMessage(dataMessage)` qui traite le retour (en règle général, ça consiste à jouer la suite du *case* étudié ).
+
+Si `dataMessage` définit la propriété `returnMethod`, c’est cette méthode qui sera appelée au retour dans  `<SWTInterface>#onMessage(dataMessage)`.
 
 ## Schéma général de communication
 
@@ -105,7 +109,7 @@ En l’occurrence, les data du TCase de notre ligne sont envoyé à l’interfac
 * la méthode attend que `div#mondiv` se trouve dans la page
 * quand c’est le cas, il évalue le code transmis dans la propriété `eval` par le TCase. En l’occurrence, c’est le code `document.querySelector("div#mondiv").innerHTML` et met le résultat dans la propriété `result` et `evalResult` des data du TCase.
 * si le div n’a pas été trouvé, ou en cas d’une autre erreur, la propriété `testError` des datas est défini. Si c’est une erreur système, c’est la propriété `systemError` qui doit être définie.
-* Une fois que c’est fait, `<interface>` se sert de la méthode `sendTestor` pour renvoyer les données au *Testor*.
+* Une fois que c’est fait, `<interface>` se sert de la méthode `sendToTestor` pour renvoyer les données au *Testor*.
 
 Les choses se passent ensuite côté *Testor*.
 
@@ -164,7 +168,7 @@ Les choses se passent ensuite côté *Testor*.
 
 4. Quand la page est prête (testée dans le `main.js` du dossier test sur le site) :
 
-   1. l’instance `{Interface} <swtInterface>` côté site envoie un message à l’interface `{SWTInterface}` côté testeur pour lui dire que le site est prêt à être testé (`{'firstReady':true})` à l’aide la méthode `sendTestor(<data>)`. Note : la méthode s’appelle « send Testor » mais c’est en fait à l’interface du testeur que sont envoyés tous les messages.
+   1. l’instance `{Interface} <swtInterface>` côté site envoie un message à l’interface `{SWTInterface}` côté testeur pour lui dire que le site est prêt à être testé (`{'firstReady':true})` à l’aide la méthode `sendToTestor(<data>)`. Note : la méthode s’appelle « send Testor » mais c’est en fait à l’interface du testeur que sont envoyés tous les messages.
    2. `<swtInterface>` (côté site), en recevant le `firstReady = true`, dit au testeur qu’il peut commencer ses tests en appelant `<testor>.start()`.
 
 5. `<testor>.start` lance les tests. Pour les essais, il envoie aussi un message à afficher par le site, à l’aide de sa méthode `<testor>.sendMessage(<msg>)`. Note : il peut utiliser la méthode `<testor>.send(<data>)` pour envoyer des données, et notamment avec la propriété `eval:` qui donne le code à évaluer côté site. Par exemple, `<testor>.send({eval:'alert("Salut le monde !")'})` provoquera l’affichage du message « Salut le monde ! » sur le site.
@@ -409,7 +413,7 @@ Voici les étapes pour créer un nouveau sujet :
        ///...
     }
     // Pour retourner les données au testor
-    this.sendTestor.call(this,data)
+    this.sendToTestor.call(this,data)
   }
   ~~~
 

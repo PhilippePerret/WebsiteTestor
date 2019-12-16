@@ -30,8 +30,10 @@ class SWTInterface {
   **/
   onMessage(ev){
     const data = ev.data
-    console.log("Message reçu par SWInterface :", data)
-    if ( ev.data.firstReady ) {
+    // console.log("Message reçu par SWInterface :", data)
+    if ( data.NotACase ){
+      eval(data.returnMethod).call(null, data)
+    } else if ( data.firstReady ) {
       this.testor.ready = true
     } else {
       // Autre message reçu par le site, à traiter

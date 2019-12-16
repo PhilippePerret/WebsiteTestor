@@ -39,3 +39,19 @@ section#test textarea#code {
   min-height:200px;
   width:100%;
 }
+
+/*
+    Pour l'inspection du code du site
+ */
+div#code-site-inspection {
+  position:fixed;
+  top:10px;
+  left:10px;
+  background-color:#FFEEEE;
+  z-index:100;
+  box-shadow: 0 0 30px #999999;
+  border:2px solid red;
+  width:1000px;
+  max-height:800px;
+  overflow:auto;
+}

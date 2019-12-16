@@ -391,6 +391,39 @@ class SWTestor {
     fs.writeFileSync(dst,code,'utf8')
   }
 
+  /*
+    Tools
+  */
+
+  /**
+    Méthode permettant d'afficher le code actuel du site
+    Note : c'est une méthode asynchrone, on a besoin de le demander à
+    l'interface
+  **/
+  showSiteHTMLCode(){
+    console.log("Affichage du code du site")
+    this.sendToSite({
+        NotACase: true
+      , eval: 'document.documentElement.outerHTML'
+      // , eval: 'document.documentElement.innerHTML'
+      , returnMethod:'SWTestor.current.showSiteHTMLCodeReturn.bind(SWTestor.current)'
+    })
+  }
+  showSiteHTMLCodeReturn(data){
+    // console.log("Retour ici avec data ", data)
+    document.body.appendChild(DCreate('DIV',{
+        id: 'code-site-inspection'
+      , inner: data.evalResult
+    }))
+    DGet('#code-site-inspection').addEventListener('click', ()=>{DGet('#code-site-inspection').remove()})
+    UI.flash("Cliquer sur la page pour la fermer")
+  }
+
+  /*
+    Properties
+   */
+
+
   /**
     Dossier du site contenant les tests
     -----------------------------------
