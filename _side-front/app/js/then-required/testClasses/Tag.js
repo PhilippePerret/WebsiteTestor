@@ -37,7 +37,7 @@ class Tag extends SWTSubject {
     const tcase = new TCase(this, type, 'exists')
     tcase.set({
         subject: this.selector
-      , eval:`!!document.querySelector("${this.selector}")`
+      , eval:`!!document.querySelector("${this.selector.replace(/"/g,'\\"')}")`
       , waitFor: this.selector
       , expected: true
       , options: options
