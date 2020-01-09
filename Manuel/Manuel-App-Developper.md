@@ -2,6 +2,10 @@
 
 [TOC]
 
+## Introduction
+
+Ce manuel se destine au développeur du WebsiteTestor. Pour l'utilisation du testeur de site (pour tester un site par exemple), utiliser le manuel de l'application (`Manuel-application.md`)
+
 ## À faire
 
 ## Communication entre testeur et site
@@ -138,7 +142,7 @@ Les choses se passent ensuite côté *Testor*.
 
 * la méthode `<tcase>.expectation.writeShortReport()` écrit sa ligne `reportLine` dans l’interface. Les méthodes de la classe `Expectation` n’ont pas à être modifiées.
 
-* Le Testor a ensuite plusieurs solutions : 
+* Le Testor a ensuite plusieurs solutions :
 
   * si une erreur système est survenue, et que l’option `--fail-fast` est activée, il s'arrête
   * si une erreur système est survenue, sans option `—fail-fast`, il passe à la feuille de tests suivant,
@@ -179,7 +183,7 @@ Les choses se passent ensuite côté *Testor*.
 
 ### Les types de ligne de test
 
-Les tests sont des feuilles de tests javascript qui contiennent une suite de procédures à exécuter. On peut trouver les types de lignes suivants. 
+Les tests sont des feuilles de tests javascript qui contiennent une suite de procédures à exécuter. On peut trouver les types de lignes suivants.
 
 * Les **expectations**,. Ce sont des attentes précises qui produisent un résultat (un succès ou un échec) . Elles sont évaluées en fonction d’informations recueillies (par exemple vérifier qu’un titre soit bien celui qu’on croit).
 * Les **vérifications**. Ce sont aussi des attentes précises, mais elles ne produisent un résultat que lorsqu’elles échouent. Elles sont souvent utilisées en début de test, pour vérifier que la situation est conforme au test.
@@ -229,7 +233,7 @@ Prenons l’exemple sur sujet `db` qui va permettre de travailler avec la base d
    class Interface {
      //...
    	treateDataDb(data){
-     
+
    	}
      // ...
    }
@@ -242,13 +246,13 @@ Prenons l’exemple sur sujet `db` qui va permettre de travailler avec la base d
    ~~~javascript
    SWTDb.DATABASE = "mabasededonnees"
    // Pour définir la base de données
-   
+
    db("SELECT * FROM matable WHERE id = ?", [1]).contains({col1:"val1", col2: "val2"})
    // Expectation de contenu
-   
+
    db("INSERT INTO matable ...", values).exec()
    // Opération pour mettre quelque chose
-   
+
    db("SELECT * FROM matable LIMIT 10").exec()
    // Opération qui renvoie un résultat
    ~~~
@@ -257,17 +261,17 @@ Prenons l’exemple sur sujet `db` qui va permettre de travailler avec la base d
 
    ~~~javascript
    class SWTDb extends SWTSubject {
-   
+
      // Pour définir de façon global la base de données à utiliser
      static get DATABASE(){return this._database}
      static set DATABASE(v){this._database = v}
-     
+
      constructor(query){
        super()
        this.query = query
        this.context = 'Db'
      }
-     
+
      /*
      	Expectation de retour de la requête
      */
@@ -279,7 +283,7 @@ Prenons l’exemple sur sujet `db` qui va permettre de travailler avec la base d
          , options: options
        })
      }
-     
+
      /*
      	Opération
      */
@@ -293,7 +297,7 @@ Prenons l’exemple sur sujet `db` qui va permettre de travailler avec la base d
    }
    ~~~
 
-   
+
 
 6. **Interface pour l’utilisateur des tests**. Pour pouvoir être utilisable, il faut fournir à l’utilisateur des tests la description de l’interface à construire pour faire un « pont » entre le testeur et le site. Cette interface consiste en la création, sur le site, de la méthode `SWTDbQuery` qui doit recevoir en argument la base, la requête et les valeurs à traiter, et qui doit retourner le résultat renvoyé par la base, comme une liste de rangées :
 
@@ -320,7 +324,7 @@ Prenons l’exemple sur sujet `db` qui va permettre de travailler avec la base d
          "username": "..."
          "password": "..."
        },
-         
+
        "offline":{
          "host": "hôte mysql local",
          "username": "...",
@@ -329,7 +333,7 @@ Prenons l’exemple sur sujet `db` qui va permettre de travailler avec la base d
      }
      ~~~
 
-     
+
 
 ## Lancement des tests
 
@@ -374,7 +378,7 @@ Voici les étapes pour créer un nouveau sujet :
   ~~~javascript
   class Str extends SWTSubject {
     // ...
-    
+
     mange(options){
       var tcase = new TCase(this, 'expectation', 'mange')
       tcase.set({
@@ -383,7 +387,7 @@ Voici les étapes pour créer un nouveau sujet :
         subject: this.subject
       , waitFor: "le tag à attendre if any"   
   	  , eval: "code à évaluer"
-      , expected: "la valeur attendue" 
+      , expected: "la valeur attendue"
       , options: options
       , inverse: this.inverse // si on peut utiliser 'not'
         // etc.
@@ -403,7 +407,7 @@ Voici les étapes pour créer un nouveau sujet :
   }
   ~~~
 
-  
+
 
 * Définir la méthode `treateDataAs<context>` dans le fichier `./_side-front/SiteWebTestor-API/siteweb-testor-api/Interface.js`. C'est cette méthode qui va traiter les méthodes de l’objet côté site.
 
@@ -417,7 +421,7 @@ Voici les étapes pour créer un nouveau sujet :
   }
   ~~~
 
-  
+
 
 <a name="creationtcases"></a>
 

@@ -2,6 +2,42 @@
 
 [TOC]
 
+## Introduction
+
+Ce manuel permet de créer les tests d’un site web à l’intérieur de Website-Testor, une plateforme de test inversée. « inversée » dans le sens où c’est le site qui est mis à l’intérieur du moteur de test au lieu du contraire habituel.
+
+## Premier test
+
+Pour faire son premier test, on doit avoir un site (local) en état de marche (au moins le minimum syndical de la page d’accueil).
+
+À la racine de ce site, on crée un dossier `./swtTests/`. C’est ce dossier qui va contenir tous les tests à faire.
+
+On peut ensuite rédiger sa première feuille de test : 
+
+* on crée un fichier `./swtTests/premier_test.js`. Noter que tous les tests, quel que soit le langage du site ou son framework, sont des fichiers javascript (puisque c’est avec `NodeJs` qu’on teste le site).
+
+* on tape le code suivant dans ce fichier :
+
+  ~~~javascript
+  it("Mon premier test de site") // pour nommer un premier test
+  visit('/') // pour rejoindre la page d'accueil
+  tag('body').exists()
+  ~~~
+
+  Ce premier test va simplement vérifier qu’après avoir rejoint l’accueil du site on trouve une balise `body` dans le code de la page (ce qui est un minimum si c’est une page HTML).
+
+On peut maintenant lancer ce premier test.
+
+* Ouvrir l’application WebSiteTestor. Par exemple depuis son dossier `/Applications` (le mieux est de la placer dans le dock.
+* activer le menu `Site ›› Ouvrir…` et choisir le dossier du site sur son ordinateur.
+* définir l’url distante dans le troisième champ, mais ça n’est pas indispensable pour ce premier test.
+* quand on clique sur `OK`, la page d’accueil du site s’affiche.
+* activer le menu `Tests ›› Lancer les tests…` (ou ⌘T)
+
+Le premier test se lance et devrait produire un succès.
+
+
+
 ## Inspection du code HTML du site
 
 À cause de l’utilisation de l’iframe, on ne peut pas utiliser la console de développement pour inspecter le code du site. Pour palier cette limitation, on utilise l’item de menu «  Site > Inspecter le code… » (ou le raccourci clavier `Cmd+Alt+C`).
@@ -79,31 +115,6 @@ Pour tester la non existence :
 
 ~~~javascript
 tag("#mondiv").not.exists()
-~~~
-
-
-
-
-
-La méthode principale est `hasCss` (et son inverse `hasNotCss`). Elle s’utilise sur `site` de cette manière :
-
-~~~javascript
-site.hasCss(selector[, arguments])
-~~~
-
-
-
-Par exemple :
-
-~~~javas
-site.hasCss('section#page-contents')
-# succès si la page contient <section id="page-contents">...</section>
-~~~
-
-~~~javas
-site.hasCss('div', {text: "Mon texte", onlyOnFailure:true})
-# Ne produit rien si la page contient <div>Mon texte</div> mais produit un échec visible
-# dans le cas contraire.
 ~~~
 
 
