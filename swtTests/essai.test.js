@@ -13,7 +13,7 @@ tag('div#titre_site').not.contains("Un jour d'avril")
 une_erreur_systeme()
 
 // // Pour produire une erreur
-// tag('div#titre_site').contains("Un jour de printemps")
+tag('div#titre_site').contains("Un jour de printemps")
 
 // // Pour cliquer sur le bouton pour s'identifier
 // click('a#login-button')

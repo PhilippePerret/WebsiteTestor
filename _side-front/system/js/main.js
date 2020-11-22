@@ -10,5 +10,6 @@ const Sys = {
 }
 
 document.addEventListener('DOMContentLoaded', function(event) {
+  console.log("-> ICI")
   App.init.call(App)
 })

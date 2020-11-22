@@ -15,7 +15,8 @@ const Prefs = {
   **/
   get(pref_id) {
     this.loaded || this.load()
-    console.log("this.app_data = ", this.app_data)
+    // console.log("pref_id", pref_id)
+    // console.log("this.app_data = ", this.app_data)
     return this.data[pref_id] || eval(this.app_data[pref_id])
   }
 
@@ -36,9 +37,11 @@ const Prefs = {
       this.data = require(this.path)
     } else {
       console.warn("Pas de fichier préférences (normal si nouvelle application)")
-      this.data = {}
+      this.data = {
+        lastSiteChecked: 'http://www.atelier-icare.net'
+      }
     }
-    console.log("Prefs.data = ", this.data)
+    // console.log("Prefs.data = ", this.data)
     this.loaded = true
   }
 

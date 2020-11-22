@@ -26,6 +26,8 @@ Object.assign(App,{
     if ( lastSiteFolder ) {
       SWTestor.current = new SWTestor(lastSiteFolder)
       SWTestor.current.prepareAndOpen()
+    } else {
+      console.log("Pas de site à tester")
     }
 
   }
