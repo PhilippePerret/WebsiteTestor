@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/_YOUR_GIT_ACCOUNT_/_YOUR_REPOSITORY_#readme",
   "devDependencies": {
-    "electron": "^6.0.0",
+    "electron": "^18.3.7",
     "electron-packager": "^14.0.4"
   },
   "dependencies": {
